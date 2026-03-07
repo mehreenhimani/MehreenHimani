@@ -109,11 +109,7 @@ Productized a pipeline converting audio → structured insights → dashboards.
 ## 🌐 Connect With Me
 Let’s connect and build something meaningful together.
 
-- 🔗 LinkedIn: *https://www.linkedin.com/in/mehreenhimani/*  
-- 💼 Portfolio Website: (optional)  
+- 🔗 LinkedIn: *https://www.linkedin.com/in/mehreenhimani/*    
 - ✉️ Email: *himanimehreen@gmail.com*  
 
 ---
-
-!AI Banner
-!LLM
