@@ -1,115 +1,45 @@
-# 👋 Hi, I'm Mehreen Himani
+# Hi, I'm Mehreen 👋
 
-### Senior AI Product Manager | LLM & GenAI Strategy | Turning Complex AI into Scalable Products 
+**Senior AI Product Manager** with 13+ years shipping digital products across banking, automotive, and enterprise AI.
 
-I build AI products that combine **cutting-edge ML capabilities** with **clear product vision**, **responsible frameworks**, and **delightful user experiences**.
-
-My leadership philosophy is simple:
-
-👉 **AI must amplify human potential, reduce friction, and deliver measurable business impact.**
+I build AI products for regulated industries — where compliance, trust, and evaluation aren't optional.
 
 ---
 
-## 🚀 What I Do
-I specialize in bringing AI from *idea → prototype → production* with rigor and clarity:
+## 🔧 What I'm Building
 
-- **AI/ML Product Strategy**: Framing ambiguous problems, shaping outcomes, and defining multi‑year AI roadmaps.  
-- **LLM Product Design**: Prompt engineering, retrieval pipelines, evaluation systems, hallucination mitigation.  
-- **User‑Driven AI Development**: Grounding solutions in deep customer insights & user journeys.  
-- **Cross‑Functional Leadership**: Driving alignment across Engineering, Data Science, UX, and GTM.  
-- **Responsible AI**: Safety, fairness, human-in-the-loop, and model evaluation.  
-- **Data & Platform Thinking**: Turning data capabilities into scalable, productizable features.  
+| Project | What It Is | Tech / Platform | Status |
+|---------|-----------|-----------------|--------|
+| [Regulatory Intelligence Copilot](#) | RAG-powered AI copilot for compliance teams — retrieves regulatory answers with source citations and audit trails | Lovable + Claude API | 🟡 In Progress |
+| [Compliance Alert Triage System](#) | AI-powered AML alert prioritization dashboard with risk scoring, analyst workflows, and feedback loops | Bolt.new | 🟢 Complete  |
+| [AI Process Intelligence Strategy](#) | Product strategy doc: applying AI + process mining to banking compliance workflows | PDF / Notion | 🟡 In Progress |
 
 ---
 
-## 🧠 AI Skills
+## 📄 Case Studies & Strategy Docs
 
-**AI/ML**
-- LLM architectures, RAG, embeddings  
-- Prompt engineering & evaluation  
-- GenAI UX design principles  
-- Model testing, success metrics, benchmarks  
-- Data strategy, labeling frameworks  
-
-**Product**
-- PRD writing & spec development  
-- Product vision & narrative building  
-- Systems thinking & opportunity mapping  
-- Experimentation & metrics  
-- Program execution across ambiguity  
-
-**Tools**
-- Jira, Azure DevOps (Agile, Kanban, Scrum, SAFe)
-- REST APIs, SOAP UI (API testing & integration workflows)
-- Figma, Miro (UX collaboration & product design)
-- Confluence, SharePoint (documentation & knowledge systems)
-- Power BI, Excel (analytics & insights)
-- GitHub (documentation, workflow management)
-
+- **AI Evaluation Framework** — How I built an LLM quality evaluation framework at Capgemini: accuracy, consistency, safety, latency, cost. [Read →](#)
+- **AI Adoption Playbook** — Enterprise adoption strategy: from skepticism to scale in governance teams. [Read →](#)
+- **AI Credit Scoring Fairness Audit** — Experiment design for EU AI Act compliance in AI-based lending. [Read →](#)
 
 ---
 
-## 🌟 AI Product Portfolio  
+## 🏦 Domain Expertise
 
+`AML/Financial Crime` · `Post-Trade Settlements` · `Compliance Analytics` · `Credit Risk` · `Loan Stress Testing` · `EU AI Act` · `DORA` · `GDPR Article 22`
 
-### 🔹 1. Intelligent Workflow Automation (LLM Assistant)
-Designed and delivered a workflow assistant using LLMs to cut manual effort by **40%**.
+## 🤖 AI Product Skills
 
-**My Role:**  
-- Opportunity sizing & discovery  
-- Prompt design, evaluation datasets, hallucination scoring  
-- End-to-end UX workflows  
-- Stakeholder alignment across DS/Eng  
+`LLM Workflows` · `Multi-Agent Architecture` · `RAG Pipelines` · `Context Engineering` · `AI Evaluations` · `Prompt Engineering` · `Guardrails & Safety` · `Human-in-the-Loop Design`
 
----
+## 🛠️ PM Craft
 
-### 🔹 2. AI Feature Prioritization Framework
-Built a framework used to evaluate AI opportunities across **user value**, **model feasibility**, **data readiness**, and **ethical risks**.
-
-This framework accelerated decision-making and reduced cross-team churn by **30%**.
+`Product Strategy` · `Roadmapping` · `RICE Prioritization` · `A/B Testing` · `OKRs` · `PI Planning` · `Stakeholder Management` · `Go-to-Market`
 
 ---
 
-### 🔹 3. Voice-to‑Insights Analytics (Multimodal AI)
-Productized a pipeline converting audio → structured insights → dashboards.
+## 📫 Let's Connect
 
-**Highlights:**  
-- Human‑AI validation loop integrated  
-- Robust sentiment + topic modeling  
-- KPI-driven rollout to 20+ pilot users  
-
----
-
-## 🥇 Achievements
-- Delivered multiple AI/LLM features to production impacting 5,000+ users  
-- Recognized for **cross-functional leadership** and **strategic clarity**  
-- Led pilots, usability studies, and AI model evaluations  
-- Drove Responsible AI adoption across new features  
-- Partnered closely with engineering to convert prototypes into scalable architectures  
-
----
-
-## 🎤 Speaking & Leadership
-- Speaker at internal AI Innovation forums  
-- Led workshops on LLM prompt engineering  
-- Mentored junior PMs and analysts transitioning into AI roles  
-
----
-
-## 🎓 Certifications
-- AI Product Manager Micro Certification (OpenAI)
-- Product Management Essentials Badge (IBM)
-- LLM Foundations Certified PM (Product School)  
-- AI Agents Certified PM (Product School)   
-- Certified Scrum Product Owner CSPO (Scrum Alliance)
-- ISTQB Foundation (BSC)
-
----
-
-## 🌐 Connect With Me
-Let’s connect and build something meaningful together.
-
-- 🔗 LinkedIn: *https://www.linkedin.com/in/mehreenhimani/*    
-- ✉️ Email: *himanimehreen@gmail.com*  
-
----
+- **LinkedIn:** [linkedin.com/in/mehreenhimani](https://www.linkedin.com/in/mehreenhimani/)
+- **Email:** himanimehreen@gmail.com
+- **Location:** Stuttgart, Germany
