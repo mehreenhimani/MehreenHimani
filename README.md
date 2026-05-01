@@ -10,7 +10,7 @@ I build AI products for regulated industries — where compliance, trust, and ev
 
 | Project | What It Is | Tech / Platform | Status |
 |---------|-----------|-----------------|--------|
-| | [RegCopilot](https://github.com/mehreenhimani/regcopilot) | RAG-powered AI copilot for compliance teams — retrieves regulatory answers with source citations and audit trails | Lovable + Claude API | 🟢 Complete  |
+| [RegCopilot](https://github.com/mehreenhimani/regcopilot) | RAG-powered AI copilot for compliance teams — retrieves regulatory answers with source citations and audit trails | Lovable + Claude API | 🟢 Complete  |
 | [ComplianceIQ](https://github.com/mehreenhimani/complianceiq-aml-triage) | AI-powered AML alert prioritization dashboard with risk scoring, analyst workflows, and feedback loops | Bolt.new | 🟢 Complete  |
 | [AI Process Intelligence Strategy](#) | Product strategy doc: applying AI + process mining to banking compliance workflows | PDF / Notion | 🟡 In Progress |
 
