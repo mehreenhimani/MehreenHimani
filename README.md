@@ -67,6 +67,6 @@ I build AI products for regulated industries — where compliance, trust, and ev
 ## 📫 Let's Connect
 
 - **Portfolio:** [mehreens-ai-story.lovable.app](https://mehreens-ai-story.lovable.app)
-- **LinkedIn:** [linkedin.com/in/mehreenhimani](https://www.linkedin.com/in/mehreenhimani/)
+- **LinkedIn:** [linkedin.com/in/mehreenhimani/](https://www.linkedin.com/in/mehreenhimani/)
 - **Email:** himanimehreen@gmail.com
 - **Location:** Stuttgart, Germany 🇩🇪
