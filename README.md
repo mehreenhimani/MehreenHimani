@@ -35,16 +35,19 @@ I build AI products for regulated industries — where compliance, trust, and ev
   [Read →](https://github.com/mehreenhimani/regcopilot/blob/main/RegCopilot_Case_Study_Mehreen.docx)
 
 - **AI Evaluation Framework** — How I built an LLM quality evaluation 
-  framework at Capgemini: accuracy, consistency, safety, latency, cost. 
-  [Read →](#)
+  framework at Capgemini: accuracy, consistency, safety, latency, cost — 
+  grounded in a real 35% efficiency improvement.
+  [Read →](https://github.com/mehreenhimani/MehreenHimani/blob/main/AI_Evaluation_Framework_Mehreen.docx)
 
-- **AI Adoption Playbook** — Enterprise adoption strategy: from 
-  skepticism to scale in governance teams. 
-  [Read →](#)
+- **AI Adoption Playbook** — Enterprise adoption strategy: from skepticism 
+  to scale in governance teams. 5-phase playbook from real Capgemini rollout 
+  across 40 users in regulated compliance teams.
+  [Read →](https://github.com/mehreenhimani/MehreenHimani/blob/main/AI_Adoption_Playbook_Mehreen.docx)
 
-- **AI Credit Scoring Fairness Audit** — Experiment design for EU AI 
-  Act compliance in AI-based lending. 
-  [Read →](#)
+- **AI Credit Scoring Fairness Audit** — Experiment design for EU AI Act 
+  compliance in AI-based lending. Covers disparate impact analysis, 
+  counterfactual testing, GDPR Article 22, and human oversight design.
+  [Read →](https://github.com/mehreenhimani/MehreenHimani/blob/main/AI_Credit_Scoring_Fairness_Audit_Mehreen.docx)
 ---
 
 ## 🏦 Domain Expertise
