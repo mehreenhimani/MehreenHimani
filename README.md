@@ -12,16 +12,39 @@ I build AI products for regulated industries — where compliance, trust, and ev
 |---------|-----------|-----------------|--------|
 | [RegCopilot](https://github.com/mehreenhimani/regcopilot) | RAG-powered AI copilot for compliance teams — retrieves regulatory answers with source citations and audit trails | Lovable + Claude API | 🟢 Complete  |
 | [ComplianceIQ](https://github.com/mehreenhimani/complianceiq-aml-triage) | AI-powered AML alert prioritization dashboard with risk scoring, analyst workflows, and feedback loops | Bolt.new | 🟢 Complete  |
-| [AI Process Intelligence Strategy](#) | Product strategy doc: applying AI + process mining to banking compliance workflows | PDF / Notion | 🟡 In Progress |
+| [PulseAI](https://github.com/mehreenhimani/pulseai) | Multi-agent AI system that autonomously harvests product feedback, analyses sentiment, scores features using RICE framework, and generates structured PRDs | Lovable + n8n + HuggingFace + Claude API | 🟢 Complete |  |
 
 ---
 
 ## 📄 Case Studies & Strategy Docs
 
-- **AI Evaluation Framework** — How I built an LLM quality evaluation framework at Capgemini: accuracy, consistency, safety, latency, cost. [Read →](#)
-- **AI Adoption Playbook** — Enterprise adoption strategy: from skepticism to scale in governance teams. [Read →](#)
-- **AI Credit Scoring Fairness Audit** — Experiment design for EU AI Act compliance in AI-based lending. [Read →](#)
+- **PulseAI — Multi-Agent Product Intelligence** — How I architected 
+  a 4-agent autonomous pipeline (n8n + HuggingFace + Claude API) that 
+  reduces manual feedback analysis time by ~80%. 
+  [Read →](https://github.com/mehreenhimani/pulseai/blob/main/PulseAI_Case_Study_Mehreen.docx)
 
+- **ComplianceIQ — AML Alert Triage System** — How I designed an 
+  AI-powered compliance dashboard grounded in real UBS AML outcomes: 
+  45% → 22% false positive rate, 2,100 analyst hours saved annually. 
+  [Read →](https://github.com/mehreenhimani/complianceiq-aml-triage/blob/main/ComplianceIQ_Case_Study_Mehreen.docx)
+
+- **RegCopilot — RAG Regulatory Intelligence** — How I built a 
+  production RAG pipeline indexing 33,536 chunks across EU AI Act, 
+  DORA, AMLD6, GDPR — achieving 82% accuracy with zero hallucination 
+  tolerance. 
+  [Read →](https://github.com/mehreenhimani/regcopilot/blob/main/RegCopilot_Case_Study_Mehreen.docx)
+
+- **AI Evaluation Framework** — How I built an LLM quality evaluation 
+  framework at Capgemini: accuracy, consistency, safety, latency, cost. 
+  [Read →](#)
+
+- **AI Adoption Playbook** — Enterprise adoption strategy: from 
+  skepticism to scale in governance teams. 
+  [Read →](#)
+
+- **AI Credit Scoring Fairness Audit** — Experiment design for EU AI 
+  Act compliance in AI-based lending. 
+  [Read →](#)
 ---
 
 ## 🏦 Domain Expertise
@@ -40,6 +63,7 @@ I build AI products for regulated industries — where compliance, trust, and ev
 
 ## 📫 Let's Connect
 
+- **Portfolio:** [mehrens-ai-story.lovable.app](https://mehrens-ai-story.lovable.app)
 - **LinkedIn:** [linkedin.com/in/mehreenhimani](https://www.linkedin.com/in/mehreenhimani/)
 - **Email:** himanimehreen@gmail.com
-- **Location:** Stuttgart, Germany
+- **Location:** Stuttgart, Germany 🇩🇪
