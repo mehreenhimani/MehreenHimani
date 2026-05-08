@@ -66,7 +66,9 @@ I build AI products for regulated industries — where compliance, trust, and ev
 
 ## 📫 Let's Connect
 
-- **Portfolio:** [mehreens-ai-story.lovable.app](https://mehreens-ai-story.lovable.app)
-- **LinkedIn:** [linkedin.com/in/mehreenhimani/](https://www.linkedin.com/in/mehreenhimani/)
-- **Email:** himanimehreen@gmail.com
-- **Location:** Stuttgart, Germany 🇩🇪
+[![Portfolio](https://img.shields.io/badge/Portfolio-mehreens--ai--story.lovable.app-blueviolet?style=flat&logo=lovable)](https://mehreens-ai-story.lovable.app)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-Mehreen_Himani-0077B5?style=flat&logo=linkedin)](https://www.linkedin.com/in/mehreenhimani/)
+[![Email](https://img.shields.io/badge/Email-himanimehreen@gmail.com-D14836?style=flat&logo=gmail)](mailto:himanimehreen@gmail.com)
+[![GitHub](https://img.shields.io/badge/GitHub-mehreenhimani-181717?style=flat&logo=github)](https://github.com/mehreenhimani)
+
+📍 Stuttgart, Germany 🇩🇪 &nbsp;|&nbsp; Open to Senior AI PM roles
