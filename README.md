@@ -86,7 +86,7 @@ and evaluation aren't optional.
 ## 📫 Let's Connect
 
 [![Portfolio](https://img.shields.io/badge/Portfolio-Visit-blueviolet?style=for-the-badge)](https://mehreens-ai-story.lovable.app)
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-Mehreen%20Himani-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/mehreenhimani/)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-Mehreen%20Himani-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://linkedin.com/in/mehreenhimani)
 [![Email](https://img.shields.io/badge/Email-himanimehreen%40gmail.com-D14836?style=for-the-badge&logo=gmail&logoColor=white)](mailto:himanimehreen@gmail.com)
 [![GitHub](https://img.shields.io/badge/GitHub-mehreenhimani-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/mehreenhimani)
 
