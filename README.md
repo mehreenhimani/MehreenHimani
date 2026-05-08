@@ -56,11 +56,11 @@ I build AI products for regulated industries — where compliance, trust, and ev
 
 ## 🤖 AI Product Skills
 
-`LLM Workflows` · `Multi-Agent Architecture` · `RAG Pipelines` · `Context Engineering` · `AI Evaluations` · `Prompt Engineering` · `Guardrails & Safety` · `Human-in-the-Loop Design`
+`LLM Workflows` · `Multi-Agent Architecture` · `RAG Pipelines` · `Context Engineering` · `AI Evaluations` · `Prompt Engineering` · `Guardrails & Safety` · `Human-in-the-Loop Design` `LLM Evaluation Techniques` · `Agentic AI Systems` · `Vibe Coding` · `Chrome Extension Development`
 
 ## 🛠️ PM Craft
 
-`Product Strategy` · `Roadmapping` · `RICE Prioritization` · `A/B Testing` · `OKRs` · `PI Planning` · `Stakeholder Management` · `Go-to-Market`
+`Product Strategy` · `Roadmapping` · `RICE Prioritization` · `A/B Testing` · `OKRs` · `PI Planning` · `Stakeholder Management` ·  `PRD Writing` · `Feature Prioritisation` · `Root Cause Analysis` · `Product Sense` · `Go-to-Market` · `Feature Launch` · `Metrics Definition` · `User Interviews`
 
 ---
 
