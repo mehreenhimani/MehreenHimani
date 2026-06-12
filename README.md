@@ -14,6 +14,8 @@ and evaluation aren't optional.
 
 | Project | What It Is | Tech / Platform | Status |
 |---------|-----------|-----------------|--------|
+| [PayGuard AI](https://payguard-ai-sigma.vercel.app) | Real-time payments fraud detection platform with explainable risk scoring, analyst review queue, and EU AI Act compliance scoring | React + Vite + Claude API + Vercel | 🟢 Complete |
+| [OnboardIQ](https://kyc-onboarding-sigma.vercel.app)| AI-powered KYC onboarding risk triage and funnel analytics dashboard with explainable agent reasoning for digital banking compliance teams | React + Vite + Tailwind + Vercel | 🟢 Complete |
 | [PulseAI](https://github.com/mehreenhimani/pulseai) | Multi-agent AI system that autonomously harvests product feedback, analyses sentiment, scores features using RICE framework, and generates structured PRDs | Lovable + n8n + HuggingFace + Claude API | 🟢 Complete |
 | [ComplianceIQ](https://github.com/mehreenhimani/complianceiq-aml-triage) | AI-powered AML alert prioritization dashboard with risk scoring, analyst workflows, and feedback loops | Bolt.new + Vercel | 🟢 Complete |
 | [RegCopilot](https://github.com/mehreenhimani/regcopilot) | RAG-powered AI copilot for compliance teams — retrieves regulatory answers with source citations and audit trails | Lovable + Claude API + Supabase | 🟢 Complete |
@@ -21,6 +23,19 @@ and evaluation aren't optional.
 ---
 
 ## 📄 Case Studies & Strategy Docs
+
+- **PayGuard AI — Real-Time Payments Fraud Detection** — How I designed
+  an explainable fraud detection platform for digital banking: real-time
+  transaction risk scoring, an analyst review queue, and built-in EU AI Act
+  compliance scoring for high-risk AI systems.
+  [View live →](https://payguard-ai-sigma.vercel.app)
+
+- **OnboardIQ — KYC Onboarding Risk Triage** — How I designed a
+  risk-based KYC framework that routes applicants to auto-approve,
+  fast-track, or manual review with a full step-by-step explainable
+  reasoning trace, paired with funnel analytics to identify onboarding
+  drop-off by jurisdiction and verification channel.
+  [View repo →](https://github.com/mehreenhimani/KYC-Onboarding)
 
 - **PulseAI — Multi-Agent Product Intelligence** — How I architected
   a 4-agent autonomous pipeline (n8n + HuggingFace + Claude API) that
@@ -58,7 +73,8 @@ and evaluation aren't optional.
 ## 🏦 Domain Expertise
 
 `AML / Financial Crime` · `Post-Trade Settlements` · `Compliance Analytics`
-`Credit Risk` · `Loan Stress Testing` · `EU AI Act` · `DORA` · `GDPR Article 22`
+`Credit Risk` · `Loan Stress Testing` · `KYC / Identity Verification`
+`EU AI Act` · `DORA` · `GDPR Article 22`
 `Feature Opportunity Validation` · `Product Discovery` · `User Research`
 `Competitive Analysis` · `B2B SaaS` · `Enterprise AI`
 
@@ -69,7 +85,7 @@ and evaluation aren't optional.
 `LLM Workflows` · `Multi-Agent Architecture` · `RAG Pipelines`
 `Context Engineering` · `AI Evaluations` · `LLM Evaluation Techniques`
 `Prompt Engineering` · `Guardrails & Safety` · `Human-in-the-Loop Design`
-`Agentic AI Systems` · `Vibe Coding` · `Chrome Extension Development`
+`Agentic AI Systems` · `Explainable AI` · `Vibe Coding` · `Chrome Extension Development`
 
 ---
 
