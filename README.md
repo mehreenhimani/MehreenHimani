@@ -35,7 +35,7 @@ and evaluation aren't optional.
   fast-track, or manual review with a full step-by-step explainable
   reasoning trace, paired with funnel analytics to identify onboarding
   drop-off by jurisdiction and verification channel.
-  [View repo →](https://github.com/mehreenhimani/KYC-Onboarding)
+  [View live →](https://kyc-onboarding-sigma.vercel.app).
 
 - **PulseAI — Multi-Agent Product Intelligence** — How I architected
   a 4-agent autonomous pipeline (n8n + HuggingFace + Claude API) that
