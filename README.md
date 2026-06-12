@@ -106,4 +106,4 @@ and evaluation aren't optional.
 [![Email](https://img.shields.io/badge/Email-himanimehreen%40gmail.com-D14836?style=for-the-badge&logo=gmail&logoColor=white)](mailto:himanimehreen@gmail.com)
 [![GitHub](https://img.shields.io/badge/GitHub-mehreenhimani-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/mehreenhimani)
 
-📍 Stuttgart, Germany 🇩🇪 &nbsp;|&nbsp; Open to Senior AI PM roles
+📍 Stuttgart, Germany 🇩🇪 &nbsp;|&nbsp; Open to Senior PM and AI PM roles
