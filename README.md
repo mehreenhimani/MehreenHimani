@@ -1,10 +1,6 @@
 # Hi, I'm Mehreen 👋
 
-**Senior AI Product Manager** with 13+ years shipping digital products 
-across banking, automotive, and enterprise AI.
-
-I build AI products for regulated industries — where compliance, trust, 
-and evaluation aren't optional.
+13+ years in regulated financial services — delivery, quality engineering, and AI. 7 production AI products shipped: banking agents, fraud detection, KYC triage, and regulatory RAG. Currently working on SAP S/4HANA migration testing at Capgemini.
 
 📍 Stuttgart, Germany 🇩🇪 &nbsp;|&nbsp; Open to Senior AI PM roles
 
