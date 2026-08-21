@@ -131,7 +131,15 @@ VIRTUAL_KEYS: dict[str, VirtualKey] = {
         key_alias="carecopilot-dev",
         tenant="pharmacy-care",
         cost_centre="cc-4711-customer-care",
-        allowed_models=("carecopilot-fast", "carecopilot-balanced", "carecopilot-embed"),
+        # The regional twin of an entitled model is entitled too — otherwise the
+        # key has a fallback chain it is not allowed to use, and a Sweden Central
+        # outage takes the tenant down instead of failing over.
+        allowed_models=(
+            "carecopilot-fast",
+            "carecopilot-balanced",
+            "carecopilot-balanced-westeu",
+            "carecopilot-embed",
+        ),
         rpm_limit=60,
         tpm_limit=120_000,
         daily_budget_usd=25.0,

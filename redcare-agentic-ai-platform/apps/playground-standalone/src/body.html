@@ -1,0 +1,127 @@
+<div class="shell">
+  <header>
+    <div class="brand">
+      <div class="mark">R</div>
+      <div><b>Redcare Agentic AI Platform</b><span>CareCopilot reference tenant · platform control plane</span></div>
+    </div>
+    <span class="grow"></span>
+    <span class="chip acc" id="h-key">carecopilot-dev</span>
+    <span class="chip info" id="h-spend">$0.0000 today</span>
+    <span class="chip ok" id="h-pending">no approvals pending</span>
+    <span class="chip ok" id="h-health">all deployments healthy</span>
+  </header>
+
+  <nav role="tablist" aria-label="Platform sections">
+    <button role="tab" aria-selected="true"  data-tab="agent"><span class="n">01</span>Agent</button>
+    <button role="tab" aria-selected="false" data-tab="gateway"><span class="n">02</span>AI Gateway</button>
+    <button role="tab" aria-selected="false" data-tab="observe"><span class="n">03</span>Observability</button>
+    <button role="tab" aria-selected="false" data-tab="evals"><span class="n">04</span>Evals &amp; Quality</button>
+    <button role="tab" aria-selected="false" data-tab="govern"><span class="n">05</span>Governance</button>
+    <button role="tab" aria-selected="false" data-tab="map"><span class="n">06</span>Platform Map</button>
+  </nav>
+
+  <main>
+    <!-- 01 agent -->
+    <section class="tab on" id="tab-agent">
+      <div class="split">
+        <div class="panel">
+          <h2>CareCopilot <span class="grow"></span><span class="chip plain" id="sess">no session</span></h2>
+          <div class="body"><div id="log"></div></div>
+          <div class="prompts" id="prompts"></div>
+          <div class="composer">
+            <input type="text" id="msg" autocomplete="off" aria-label="Message"
+                   placeholder="Ask about an order, stock, a policy, or a medication interaction…">
+            <button class="btn" id="send">Send</button>
+            <button class="btn ghost" id="reset">Reset</button>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h2>Decision trace <span class="grow"></span><span class="chip" id="t-stop">idle</span></h2>
+          <div class="body">
+            <div class="grid g4" style="margin-bottom:15px">
+              <div class="stat"><div class="v" id="m-cost">–</div><div class="k">turn cost</div><div class="s" id="m-cost-s">USD</div></div>
+              <div class="stat"><div class="v" id="m-lat">–</div><div class="k">latency</div><div class="s" id="m-lat-s">end to end</div></div>
+              <div class="stat"><div class="v" id="m-steps">–</div><div class="k">steps</div><div class="s" id="m-steps-s">planner loops</div></div>
+              <div class="stat"><div class="v" id="m-tok">–</div><div class="k">tokens</div><div class="s" id="m-tok-s">in / out</div></div>
+            </div>
+            <div class="pipe" id="pipeline"></div>
+            <div id="routing"></div>
+            <div id="guardrails"></div>
+            <div id="steps"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 02 gateway -->
+    <section class="tab" id="tab-gateway">
+      <p class="lede"><b>LiteLLM is the choke point.</b> Every model call from every team goes through it,
+        which is what makes entitlement, rate limits, budgets, failover, caching and per-tenant cost
+        attribution enforceable in one place instead of twenty codebases. Mark a deployment unhealthy below,
+        then send another turn — the router fails over and tells you why.</p>
+      <div class="grid g2">
+        <div class="panel"><h2>Model catalogue</h2><div class="body" id="catalog"></div></div>
+        <div class="panel"><h2>Virtual keys — the unit of governance</h2><div class="body" id="keys"></div></div>
+      </div>
+      <div class="grid g2" style="margin-top:14px">
+        <div class="panel"><h2>Spend ledger — per tenant, model and cost centre</h2><div class="body" id="spend"></div></div>
+        <div class="panel"><h2>Configuration in force</h2><div class="body" id="config"></div></div>
+      </div>
+    </section>
+
+    <!-- 03 observability -->
+    <section class="tab" id="tab-observe">
+      <p class="lede"><b>Four signal families.</b> RED tells you the service is up. Agent metrics tell you it
+        is behaving. Quality metrics tell you it is right. FinOps metrics tell you it is affordable. A
+        platform that ships only the first family is trusted until the first bad answer, and never again.</p>
+      <div class="grid g2">
+        <div class="panel"><h2>Service level objectives &amp; error budgets</h2><div class="body" id="slo"></div></div>
+        <div class="panel"><h2>Recent traces</h2><div class="body" id="traces"></div></div>
+      </div>
+      <div class="grid g2" style="margin-top:14px">
+        <div class="panel"><h2>Live metrics</h2><div class="body" id="metrics"></div></div>
+        <div class="panel"><h2>Audit log — append-only (EU AI Act Art. 12)</h2><div class="body" id="audit"></div></div>
+      </div>
+    </section>
+
+    <!-- 04 evals -->
+    <section class="tab" id="tab-evals">
+      <p class="lede"><b>The release gate.</b> The same suite runs in GitHub Actions on every pull request.
+        Safety is thresholded at 1.00 — a single safety miss fails the build and the change cannot merge.
+        This is what lets a platform team say yes to velocity without saying yes to risk.</p>
+      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:15px">
+        <button class="btn" id="run-evals">Run the golden set</button>
+        <span id="eval-status" class="muted" style="font-size:12.5px"></span>
+      </div>
+      <div class="grid g4" id="eval-gate"></div>
+      <div class="panel" style="margin-top:14px"><h2>Case results</h2><div class="body" id="eval-results"></div></div>
+      <div class="panel" style="margin-top:14px"><h2>The golden set</h2><div class="body" id="eval-cases"></div></div>
+    </section>
+
+    <!-- 05 governance -->
+    <section class="tab" id="tab-govern">
+      <p class="lede"><b>Governance as data, not as a slide.</b> Every control below is a runtime object this
+        service exposes, so an auditor reads the live system rather than a document that drifted six months ago.</p>
+      <div class="grid g2">
+        <div class="panel"><h2>Approvals queue — human in the loop</h2><div class="body" id="approvals"></div></div>
+        <div class="panel"><h2>Tool cards — the agent's declared blast radius</h2><div class="body" id="tools"></div></div>
+      </div>
+      <div class="grid g2" style="margin-top:14px">
+        <div class="panel"><h2>EU AI Act posture</h2><div class="body" id="aiact"></div></div>
+        <div class="panel"><h2>GDPR, residency &amp; platform controls</h2><div class="body" id="gdpr"></div></div>
+      </div>
+    </section>
+
+    <!-- 06 map -->
+    <section class="tab" id="tab-map">
+      <p class="lede"><b>Every tool in the job description, and the job it actually does here.</b>
+        Read this top to bottom and you have the production lifecycle: write it, prove it, ship it, run it,
+        govern it, pay for it.</p>
+      <div id="map"></div>
+    </section>
+  </main>
+</div>
+<script>
+__JS__
+</script>
