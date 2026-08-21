@@ -1,0 +1,285 @@
+# =====================================================================================
+# CI — the quality gate every change passes before it can merge.
+#
+# Ordering is chosen so the cheapest signal fails first: a formatting error should
+# cost 20 seconds, not a full eval run. The unusual job here is `evals`, and it is
+# the one that matters most: for a non-deterministic system, unit tests prove the
+# plumbing and evals prove the behaviour. Merging without an eval gate means the
+# first person to find a quality regression is a customer.
+# =====================================================================================
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# A new push supersedes the previous run on the same branch. Reviewers should never
+# be reading results from a commit that no longer exists.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pull-requests: write
+  security-events: write
+
+env:
+  PYTHON_VERSION: "3.11"
+  WORKDIR: apps/agent-service
+
+jobs:
+  # -----------------------------------------------------------------------------------
+  lint:
+    name: Lint & type check
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+          cache-dependency-path: ${{ env.WORKDIR }}/requirements-dev.txt
+
+      - name: Install
+        working-directory: ${{ env.WORKDIR }}
+        run: pip install -r requirements.txt -r requirements-dev.txt
+
+      - name: Ruff (lint)
+        working-directory: ${{ env.WORKDIR }}
+        run: ruff check app tests --output-format=github
+
+      - name: Ruff (format)
+        working-directory: ${{ env.WORKDIR }}
+        run: ruff format --check app tests
+
+      - name: mypy
+        working-directory: ${{ env.WORKDIR }}
+        run: mypy app --ignore-missing-imports
+
+  # -----------------------------------------------------------------------------------
+  test:
+    name: Unit & integration tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+          cache-dependency-path: ${{ env.WORKDIR }}/requirements-dev.txt
+
+      - name: Install
+        working-directory: ${{ env.WORKDIR }}
+        run: pip install -r requirements.txt -r requirements-dev.txt
+
+      # LLM_MODE=mock makes the whole suite hermetic: no API key, no network, no cost,
+      # and identical results on a laptop and on a runner. A test suite that needs a
+      # provider key is a test suite that will be skipped.
+      - name: pytest
+        working-directory: ${{ env.WORKDIR }}
+        env:
+          LLM_MODE: mock
+          ENVIRONMENT: ci
+        run: pytest -q --cov=app --cov-report=xml --cov-report=term-missing --cov-fail-under=75
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: coverage
+          path: ${{ env.WORKDIR }}/coverage.xml
+
+  # -----------------------------------------------------------------------------------
+  evals:
+    name: Agent evals (release gate)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+          cache-dependency-path: ${{ env.WORKDIR }}/requirements-dev.txt
+
+      - name: Install
+        working-directory: ${{ env.WORKDIR }}
+        run: pip install -r requirements.txt -r requirements-dev.txt
+
+      - name: Run the golden set
+        working-directory: ${{ env.WORKDIR }}
+        env:
+          LLM_MODE: mock
+          ENVIRONMENT: ci
+        run: python -m app.evals.cli --output eval-report.json --markdown eval-report.md
+
+      - name: Comment the eval report on the PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const body = fs.readFileSync('${{ env.WORKDIR }}/eval-report.md', 'utf8');
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner, repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+            const marker = '<!-- agent-eval-report -->';
+            const existing = comments.find(c => c.body.includes(marker));
+            const payload = marker + '\n' + body;
+            // Update in place rather than appending: a PR with twelve stale eval
+            // comments is a PR nobody reads the eval comment on.
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner, repo: context.repo.repo,
+                comment_id: existing.id, body: payload });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner, repo: context.repo.repo,
+                issue_number: context.issue.number, body: payload });
+            }
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: eval-report
+          path: |
+            ${{ env.WORKDIR }}/eval-report.json
+            ${{ env.WORKDIR }}/eval-report.md
+
+  # -----------------------------------------------------------------------------------
+  terraform:
+    name: Terraform validate & policy
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        env: [dev, prod]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.9.8"
+
+      - name: terraform fmt
+        run: terraform fmt -check -recursive infra/terraform
+
+      # Catches module cycles and mis-wired inputs without needing a provider
+      # download — useful on a locked-down runner and instant either way.
+      - name: Module graph check
+        run: python3 scripts/tf-graph-check.py
+
+      - name: terraform init
+        working-directory: infra/terraform/envs/${{ matrix.env }}
+        run: terraform init -backend=false -input=false
+
+      - name: terraform validate
+        working-directory: infra/terraform/envs/${{ matrix.env }}
+        run: terraform validate -no-color
+
+      - name: tflint
+        uses: terraform-linters/setup-tflint@v4
+      - run: tflint --recursive --minimum-failure-severity=warning
+        working-directory: infra/terraform
+
+  # -----------------------------------------------------------------------------------
+  security:
+    name: Security scanning
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # gitleaks needs history to scan the whole diff range
+
+      # 1. Secrets. First because a leaked key is the only finding that is already
+      #    an incident by the time you read it.
+      - name: gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # 2. Static analysis of application code.
+      - name: Bandit
+        working-directory: ${{ env.WORKDIR }}
+        run: |
+          pip install bandit[sarif]
+          bandit -r app -f sarif -o bandit.sarif || true
+      - uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: ${{ env.WORKDIR }}/bandit.sarif
+          category: bandit
+
+      # 3. Infrastructure misconfiguration. Checkov and tfsec overlap deliberately —
+      #    they disagree often enough that running both is worth the minute.
+      - name: Checkov
+        uses: bridgecrewio/checkov-action@master
+        with:
+          directory: infra/terraform
+          framework: terraform
+          soft_fail: false
+          output_format: cli,sarif
+          output_file_path: console,checkov.sarif
+      - uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: checkov.sarif
+          category: checkov
+
+      # 4. Custom organisation policy — the rules no off-the-shelf scanner knows,
+      #    such as "no model deployment outside the EU" and "the gateway never
+      #    scales to zero".
+      - name: Conftest (OPA policy)
+        run: |
+          curl -sL https://github.com/open-policy-agent/conftest/releases/download/v0.56.0/conftest_0.56.0_Linux_x86_64.tar.gz \
+            | tar xz conftest && sudo mv conftest /usr/local/bin/
+          conftest test infra/terraform --policy platform/policies --all-namespaces
+
+      # 5. Dependencies and container image.
+      - name: Trivy filesystem scan
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          scan-type: fs
+          scan-ref: .
+          severity: CRITICAL,HIGH
+          exit-code: "1"
+          ignore-unfixed: true
+          format: sarif
+          output: trivy-fs.sarif
+      - uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: trivy-fs.sarif
+          category: trivy-fs
+
+  # -----------------------------------------------------------------------------------
+  # A single required status check. Branch protection points at this one job, so
+  # adding a new job later does not mean editing repository settings — and a job
+  # that is skipped cannot silently count as a pass.
+  gate:
+    name: CI gate
+    runs-on: ubuntu-latest
+    needs: [lint, test, evals, terraform, security]
+    if: always()
+    steps:
+      - name: Assert every job succeeded
+        run: |
+          results='${{ join(needs.*.result, ' ') }}'
+          echo "job results: $results"
+          for r in $results; do
+            if [ "$r" != "success" ]; then
+              echo "::error::CI gate failed — at least one job did not succeed."
+              exit 1
+            fi
+          done
+          echo "CI gate passed."

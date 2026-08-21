@@ -1,0 +1,139 @@
+# =====================================================================================
+# The playground — the whole platform on a laptop.
+#
+# `docker compose up` gives you the agent, a real LiteLLM proxy, Postgres, Redis, an
+# OTel collector, Prometheus and Grafana, wired the same way they are in Azure. The
+# agent defaults to LLM_MODE=mock so it runs with no API key and no cost; set
+# LLM_MODE=litellm and put real keys in .env to route through the actual gateway.
+#
+# Why bother, when it all runs in Azure? Because a platform nobody can run locally is
+# a platform nobody experiments with. Time-to-first-token for a new engineer is the
+# adoption metric that predicts every other one.
+# =====================================================================================
+
+name: redcare-agentic-ai-platform
+
+services:
+  agent:
+    build:
+      context: ./apps/agent-service
+    container_name: carecopilot-agent
+    ports: ["8080:8080"]
+    environment:
+      SERVICE_NAME: carecopilot-agent
+      ENVIRONMENT: local
+      # mock  -> deterministic, free, no credentials (default)
+      # litellm -> route through the gateway below
+      LLM_MODE: ${LLM_MODE:-mock}
+      LITELLM_BASE_URL: http://litellm:4000
+      LITELLM_VIRTUAL_KEY: ${LITELLM_VIRTUAL_KEY:-sk-carecopilot-dev}
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
+      LOG_LEVEL: INFO
+      GUARDRAILS_ENABLED: "true"
+      HITL_ENABLED: "true"
+    depends_on:
+      otel-collector: { condition: service_started }
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request;urllib.request.urlopen('http://127.0.0.1:8080/readyz')"]
+      interval: 15s
+      timeout: 3s
+      retries: 5
+    restart: unless-stopped
+
+  # The real LiteLLM proxy. Optional for the playground (the agent's mock mode does
+  # not need it) but present so the gateway config in gateway/litellm/ is exercised
+  # against the actual software rather than only described in a document.
+  litellm:
+    image: ghcr.io/berriai/litellm:main-stable
+    container_name: litellm-gateway
+    ports: ["4000:4000"]
+    command: ["--config", "/app/config/config.yaml", "--port", "4000", "--num_workers", "2"]
+    volumes:
+      - ./gateway/litellm:/app/config:ro
+    environment:
+      LITELLM_MASTER_KEY: ${LITELLM_MASTER_KEY:-sk-master-local-only}
+      LITELLM_SALT_KEY: ${LITELLM_SALT_KEY:-salt-local-only}
+      DATABASE_URL: postgresql://litellm:litellm@postgres:5432/litellm
+      REDIS_HOST: redis
+      REDIS_PASSWORD: ""
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
+      # Real provider credentials come from .env, which is gitignored. Empty is fine:
+      # the proxy starts, serves /health, and returns a clear error on a model call.
+      AZURE_OPENAI_SWEDEN_ENDPOINT: ${AZURE_OPENAI_SWEDEN_ENDPOINT:-}
+      AZURE_OPENAI_SWEDEN_KEY: ${AZURE_OPENAI_SWEDEN_KEY:-}
+      AZURE_OPENAI_WESTEU_ENDPOINT: ${AZURE_OPENAI_WESTEU_ENDPOINT:-}
+      AZURE_OPENAI_WESTEU_KEY: ${AZURE_OPENAI_WESTEU_KEY:-}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      AZURE_CONTENT_SAFETY_ENDPOINT: ${AZURE_CONTENT_SAFETY_ENDPOINT:-}
+      AZURE_CONTENT_SAFETY_KEY: ${AZURE_CONTENT_SAFETY_KEY:-}
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis: { condition: service_started }
+    profiles: ["gateway"] # `docker compose --profile gateway up` to include it
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: litellm-postgres
+    environment:
+      POSTGRES_USER: litellm
+      POSTGRES_PASSWORD: litellm
+      POSTGRES_DB: litellm
+    volumes: ["pgdata:/var/lib/postgresql/data"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U litellm"]
+      interval: 5s
+      retries: 10
+    profiles: ["gateway"]
+
+  redis:
+    image: redis:7-alpine
+    container_name: litellm-redis
+    command: ["redis-server", "--maxmemory", "256mb", "--maxmemory-policy", "allkeys-lru"]
+    profiles: ["gateway"]
+
+  # The collector is the seam that keeps the app vendor-neutral: the app speaks OTLP
+  # and knows nothing about Azure Monitor, Prometheus or Grafana. Swapping a backend
+  # is a collector config change, not an application change.
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.116.1
+    container_name: otel-collector
+    command: ["--config=/etc/otel/config.yaml"]
+    volumes:
+      - ./observability/otel/collector-config.yaml:/etc/otel/config.yaml:ro
+    ports:
+      - "4317:4317"   # OTLP gRPC
+      - "4318:4318"   # OTLP HTTP
+      - "8889:8889"   # Prometheus scrape endpoint
+    restart: unless-stopped
+
+  prometheus:
+    image: prom/prometheus:v3.1.0
+    container_name: prometheus
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.retention.time=7d
+      - --web.enable-lifecycle
+    volumes:
+      - ./observability/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./observability/prometheus/alerts.yml:/etc/prometheus/alerts.yml:ro
+    ports: ["9090:9090"]
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:11.4.0
+    container_name: grafana
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD:-admin}
+      GF_USERS_ALLOW_SIGN_UP: "false"
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_AUTH_ANONYMOUS_ORG_ROLE: Viewer
+    volumes:
+      - ./observability/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./observability/grafana/dashboards:/var/lib/grafana/dashboards:ro
+    ports: ["3000:3000"]
+    depends_on: [prometheus]
+    restart: unless-stopped
+
+volumes:
+  pgdata:

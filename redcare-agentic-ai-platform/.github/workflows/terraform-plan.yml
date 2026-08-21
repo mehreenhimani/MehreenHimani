@@ -1,0 +1,156 @@
+# =====================================================================================
+# Terraform plan on pull requests.
+#
+# The plan comment is the review artefact. A reviewer approving an infrastructure PR
+# is approving a diff of resources, not a diff of HCL — those are not the same thing,
+# and the gap between them is where production surprises live.
+#
+# The plan file is uploaded as an artifact and the *same file* is what apply consumes
+# after merge, so nothing can change between "what was reviewed" and "what ran".
+# =====================================================================================
+name: Terraform Plan
+
+on:
+  pull_request:
+    paths:
+      - "infra/terraform/**"
+      - ".github/workflows/terraform-*.yml"
+      - "platform/policies/**"
+
+permissions:
+  contents: read
+  pull-requests: write
+  id-token: write # required for OIDC federation to Azure
+
+concurrency:
+  group: tfplan-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  plan:
+    name: Plan (${{ matrix.env }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        env: [dev, prod]
+    environment: ${{ matrix.env }}-plan # read-only environment: no approval needed to plan
+    defaults:
+      run:
+        working-directory: infra/terraform/envs/${{ matrix.env }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.9.8"
+
+      # No client secret anywhere. GitHub mints an OIDC token, Entra ID checks that
+      # the token's subject matches a federated credential, and hands back an access
+      # token that expires in minutes.
+      - name: Azure login (OIDC)
+        uses: azure/login@v2
+        with:
+          client-id: ${{ vars.AZURE_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+
+      - name: terraform init
+        run: terraform init -input=false
+        env:
+          ARM_USE_OIDC: true
+          ARM_USE_AZUREAD: true
+
+      - name: terraform plan
+        id: plan
+        run: |
+          set -o pipefail
+          terraform plan -input=false -lock-timeout=5m \
+            -var "subscription_id=${{ vars.AZURE_SUBSCRIPTION_ID }}" \
+            -var "config_storage_account_name=${{ vars.CONFIG_STORAGE_ACCOUNT }}" \
+            -var "config_storage_access_key=${{ secrets.CONFIG_STORAGE_KEY }}" \
+            -out=tfplan | tee plan.txt
+          terraform show -no-color tfplan > plan-readable.txt
+          terraform show -json tfplan > plan.json
+        env:
+          ARM_USE_OIDC: true
+          ARM_USE_AZUREAD: true
+
+      # Policy runs against the *plan*, not the source. That is the difference
+      # between "the code looks fine" and "the resources this will create are fine" —
+      # a for_each or a variable default can turn compliant-looking HCL into a public
+      # storage account.
+      - name: Conftest against the plan
+        run: |
+          curl -sL https://github.com/open-policy-agent/conftest/releases/download/v0.56.0/conftest_0.56.0_Linux_x86_64.tar.gz \
+            | tar xz conftest && sudo mv conftest /usr/local/bin/
+          conftest test plan.json --policy ${{ github.workspace }}/platform/policies \
+            --namespace terraform.plan --all-namespaces
+
+      - name: Infracost estimate
+        if: vars.INFRACOST_ENABLED == 'true'
+        uses: infracost/actions/setup@v3
+        with:
+          api-key: ${{ secrets.INFRACOST_API_KEY }}
+      - name: Cost diff
+        if: vars.INFRACOST_ENABLED == 'true'
+        run: |
+          infracost breakdown --path plan.json --format json --out-file infracost.json
+          infracost output --path infracost.json --format github-comment --out-file cost.md
+
+      - name: Post the plan on the pull request
+        uses: actions/github-script@v7
+        env:
+          ENVNAME: ${{ matrix.env }}
+        with:
+          script: |
+            const fs = require('fs');
+            const env = process.env.ENVNAME;
+            const marker = `<!-- tfplan-${env} -->`;
+            let plan = fs.readFileSync(
+              `infra/terraform/envs/${env}/plan-readable.txt`, 'utf8');
+            // GitHub caps a comment at 65 536 characters. Truncate from the middle so
+            // the summary line at the end survives — that is the line reviewers read.
+            const LIMIT = 55000;
+            if (plan.length > LIMIT) {
+              plan = plan.slice(0, LIMIT / 2)
+                + `\n\n… ${plan.length - LIMIT} characters trimmed — see the artifact …\n\n`
+                + plan.slice(-LIMIT / 2);
+            }
+            let cost = '';
+            try { cost = fs.readFileSync('infra/terraform/envs/' + env + '/cost.md', 'utf8'); }
+            catch { /* Infracost is optional */ }
+
+            const body = [
+              marker,
+              `### Terraform plan — \`${env}\``,
+              cost,
+              '<details><summary>Show plan</summary>',
+              '', '```terraform', plan, '```', '', '</details>',
+            ].join('\n');
+
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner, repo: context.repo.repo,
+              issue_number: context.issue.number });
+            const existing = comments.find(c => c.body.includes(marker));
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner, repo: context.repo.repo,
+                comment_id: existing.id, body });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner, repo: context.repo.repo,
+                issue_number: context.issue.number, body });
+            }
+
+      # The reviewed plan is the applied plan. Retention is short because a plan goes
+      # stale the moment anything else is applied.
+      - uses: actions/upload-artifact@v4
+        with:
+          name: tfplan-${{ matrix.env }}
+          path: |
+            infra/terraform/envs/${{ matrix.env }}/tfplan
+            infra/terraform/envs/${{ matrix.env }}/plan.json
+          retention-days: 5

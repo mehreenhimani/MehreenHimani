@@ -1,0 +1,112 @@
+{
+  "version": "1.2",
+  "cadence": "monthly, generated automatically from live platform signals",
+  "philosophy": "Adoption is a platform metric, not a tenant grade. A criterion that many teams fail is a platform defect before it is a team problem.",
+  "criteria": [
+    {
+      "id": "gateway_routing",
+      "weight": 0.2,
+      "question": "Do all model calls go through the AI gateway?",
+      "source": "litellm spend logs reconciled against the Azure OpenAI invoice",
+      "passing": "100% of spend attributable to a virtual key",
+      "why": "This is the load-bearing criterion. Every other guarantee the platform makes \u2014 budgets, entitlement, failover, caching, cost attribution, central audit \u2014 is enforced at the gateway. A team that bypasses it is outside all of them at once."
+    },
+    {
+      "id": "eval_coverage",
+      "weight": 0.15,
+      "question": "Is there a golden set gating CI?",
+      "source": "eval-report.json from the last 10 builds",
+      "passing": ">= 15 cases including safety cases, and the gate blocks the merge",
+      "why": "For a non-deterministic system this is the only release control that means anything. Without it, the first person to notice a quality regression is a customer."
+    },
+    {
+      "id": "guardrails",
+      "weight": 0.15,
+      "question": "Are the platform guardrails enabled on the deployed revision?",
+      "source": "/platform/config on the running revision",
+      "passing": "input and output pipelines both enabled, no per-tenant override",
+      "why": "Guardrails are shared so that a tenant team does not have to reimplement PII redaction to ship. Disabling them silently moves risk from the platform to the company."
+    },
+    {
+      "id": "observability",
+      "weight": 0.15,
+      "question": "Are traces, metrics and audit records arriving?",
+      "source": "Log Analytics ingestion + Prometheus target health",
+      "passing": "all three present for the deployed revision",
+      "why": "An agent you cannot trace is an agent you cannot debug, cost, or defend in a complaint."
+    },
+    {
+      "id": "iac_coverage",
+      "weight": 0.1,
+      "question": "Is every resource under Terraform?",
+      "source": "nightly drift-detection job",
+      "passing": "zero drift for 30 days",
+      "why": "Drift means something changed outside the pipeline. That is either an incident or a bug, and both are worth closing."
+    },
+    {
+      "id": "cost_hygiene",
+      "weight": 0.1,
+      "question": "Is spend capped, attributed and cached?",
+      "source": "gateway spend ledger",
+      "passing": "daily budget set within 2x of actual, cost centre tagged, cache hit rate >= 15%",
+      "why": "A budget set at ten times actual is not a budget. Cache hit rate is the cheapest quality-neutral cost lever there is."
+    },
+    {
+      "id": "security",
+      "weight": 0.1,
+      "question": "Is the deployed image clean and signed?",
+      "source": "Trivy on the deployed digest, cosign verification, gitleaks history",
+      "passing": "no CRITICAL/HIGH with a fix available, signature verifies, no secrets in history",
+      "why": "An unsigned image in production means the supply chain has an unowned gap."
+    },
+    {
+      "id": "human_oversight",
+      "weight": 0.05,
+      "question": "Is every side-effecting tool gated on a human?",
+      "source": "tool registry metadata from /platform/tools",
+      "passing": "100% of tools with side_effect=true also have requires_approval=true",
+      "why": "EU AI Act Art. 14, expressed as a property of the code rather than a policy document."
+    }
+  ],
+  "bands": [
+    {
+      "min": 90,
+      "band": "paved-road",
+      "meaning": "Fully on the golden path; ships without platform involvement."
+    },
+    {
+      "min": 70,
+      "band": "adopted",
+      "meaning": "On the platform with known gaps; one or two backlog items."
+    },
+    {
+      "min": 50,
+      "band": "partial",
+      "meaning": "Real risk somewhere; platform team pairs with the tenant."
+    },
+    {
+      "min": 0,
+      "band": "off-road",
+      "meaning": "Not eligible for production traffic until it improves."
+    }
+  ],
+  "example_assessment": {
+    "agent": "carecopilot-agent",
+    "assessed_at": "2026-08-01",
+    "scores": {
+      "gateway_routing": 100,
+      "eval_coverage": 100,
+      "guardrails": 100,
+      "observability": 100,
+      "iac_coverage": 100,
+      "cost_hygiene": 85,
+      "security": 100,
+      "human_oversight": 100
+    },
+    "weighted_total": 98.5,
+    "band": "paved-road",
+    "open_items": [
+      "Cache hit rate is 19% against a 25% target \u2014 the semantic threshold at 0.93 is rejecting near-duplicate order-status phrasings. Tuning to 0.90 is on the platform backlog with a regression test attached."
+    ]
+  }
+}

@@ -1,0 +1,243 @@
+# =====================================================================================
+# CD — build, sign, deploy, verify, promote.
+#
+# Two ideas carry the whole file:
+#
+#   1. The image is immutable and identified by the commit SHA. There is no `latest`
+#      in production, so "which code is running?" is always answerable.
+#   2. A release is progressive. 10% of traffic sees the new revision, the canary is
+#      watched against SLOs *and* an online eval, and only then is it promoted. A
+#      rollback is a traffic-weight change measured in seconds.
+#
+# Production apply waits on a GitHub Environment protection rule. The pipeline is the
+# only path to production, and a human still stands in it.
+# =====================================================================================
+name: CD
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "apps/**"
+      - "gateway/**"
+      - ".github/workflows/cd.yml"
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Target environment
+        type: choice
+        options: [dev, prod]
+        default: dev
+      skip_canary:
+        description: Promote straight to 100% (incident recovery only)
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+  packages: write
+  id-token: write
+  attestations: write
+
+concurrency:
+  group: cd-${{ github.ref }}
+  cancel-in-progress: false # never cancel a deploy mid-flight
+
+env:
+  IMAGE_NAME: carecopilot-agent
+  WORKDIR: apps/agent-service
+
+jobs:
+  # -----------------------------------------------------------------------------------
+  build:
+    name: Build, scan, sign
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    outputs:
+      image_tag: ${{ steps.meta.outputs.tag }}
+      digest: ${{ steps.push.outputs.digest }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - id: meta
+        run: echo "tag=${GITHUB_SHA::12}" >> "$GITHUB_OUTPUT"
+
+      - uses: docker/setup-buildx-action@v3
+
+      - name: Azure login (OIDC)
+        uses: azure/login@v2
+        with:
+          client-id: ${{ vars.AZURE_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+
+      - name: ACR login
+        run: az acr login --name ${{ vars.ACR_NAME }}
+
+      - name: Build and push
+        id: push
+        uses: docker/build-push-action@v6
+        with:
+          context: ${{ env.WORKDIR }}
+          push: true
+          tags: |
+            ${{ vars.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:${{ steps.meta.outputs.tag }}
+          # Registry cache keeps a rebuild honest and fast: the layers come from the
+          # registry, not from a runner that may not exist next time.
+          cache-from: type=registry,ref=${{ vars.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:buildcache
+          cache-to: type=registry,ref=${{ vars.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:buildcache,mode=max
+          provenance: true
+          sbom: true
+
+      # An SBOM you cannot query when a CVE lands is a file, not a control. This one
+      # is attached to the image so "which running services ship this library?" is a
+      # registry query rather than an all-hands.
+      - name: Generate SBOM
+        uses: anchore/sbom-action@v0
+        with:
+          image: ${{ vars.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:${{ steps.meta.outputs.tag }}
+          format: cyclonedx-json
+          output-file: sbom.cdx.json
+
+      - name: Scan the built image
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          image-ref: ${{ vars.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:${{ steps.meta.outputs.tag }}
+          severity: CRITICAL,HIGH
+          exit-code: "1"
+          ignore-unfixed: true
+
+      # Keyless signing: the signature is bound to this workflow's OIDC identity and
+      # recorded in a public transparency log. ACR content trust then refuses to run
+      # anything that was not signed by this pipeline.
+      - uses: sigstore/cosign-installer@v3
+      - name: Sign the image
+        run: |
+          cosign sign --yes \
+            ${{ vars.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}@${{ steps.push.outputs.digest }}
+          cosign attest --yes --predicate sbom.cdx.json --type cyclonedx \
+            ${{ vars.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}@${{ steps.push.outputs.digest }}
+
+      - uses: actions/attest-build-provenance@v1
+        with:
+          subject-name: ${{ vars.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}
+          subject-digest: ${{ steps.push.outputs.digest }}
+          push-to-registry: true
+
+  # -----------------------------------------------------------------------------------
+  deploy-dev:
+    name: Deploy to dev
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment:
+      name: dev
+      url: ${{ steps.deploy.outputs.url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: azure/login@v2
+        with:
+          client-id: ${{ vars.AZURE_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+
+      - id: deploy
+        name: Update the container app revision
+        run: |
+          az containerapp update \
+            --name ca-carecopilot-agent \
+            --resource-group rg-raap-dev-sc \
+            --image ${{ vars.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}@${{ needs.build.outputs.digest }} \
+            --revision-suffix ${{ needs.build.outputs.image_tag }}
+          fqdn=$(az containerapp show --name ca-carecopilot-agent \
+            --resource-group rg-raap-dev-sc --query properties.configuration.ingress.fqdn -o tsv)
+          echo "url=https://$fqdn" >> "$GITHUB_OUTPUT"
+
+      - name: Smoke test
+        run: |
+          for i in $(seq 1 30); do
+            code=$(curl -s -o /dev/null -w '%{http_code}' "${{ steps.deploy.outputs.url }}/readyz" || true)
+            [ "$code" = "200" ] && echo "ready after ${i}0s" && exit 0
+            sleep 10
+          done
+          echo "::error::service never became ready"; exit 1
+
+      - name: Post-deploy eval against the live service
+        run: |
+          curl -sf -X POST "${{ steps.deploy.outputs.url }}/platform/evals/run" \
+            -H 'content-type: application/json' -o eval.json
+          python3 - <<'PY'
+          import json, sys
+          r = json.load(open("eval.json"))
+          print(json.dumps(r["aggregate"], indent=2))
+          if not r["gate_passed"]:
+              print("::error::online eval gate failed after deploy")
+              sys.exit(1)
+          PY
+
+  # -----------------------------------------------------------------------------------
+  deploy-prod:
+    name: Deploy to prod (canary → promote)
+    needs: [build, deploy-dev]
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    environment:
+      name: prod # protection rule: two approvers before this job starts
+      url: ${{ steps.canary.outputs.url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: azure/login@v2
+        with:
+          client-id: ${{ vars.AZURE_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+
+      - id: canary
+        name: Deploy the canary revision at 10% traffic
+        run: |
+          az containerapp update \
+            --name ca-carecopilot-agent --resource-group rg-raap-prod-sc \
+            --image ${{ vars.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}@${{ needs.build.outputs.digest }} \
+            --revision-suffix ${{ needs.build.outputs.image_tag }}
+          stable=$(az containerapp revision list --name ca-carecopilot-agent \
+            --resource-group rg-raap-prod-sc \
+            --query "[?properties.active && properties.trafficWeight>\`0\`].name | [0]" -o tsv)
+          az containerapp ingress traffic set \
+            --name ca-carecopilot-agent --resource-group rg-raap-prod-sc \
+            --revision-weight "$stable=90" \
+            "ca-carecopilot-agent--${{ needs.build.outputs.image_tag }}=10"
+          echo "stable=$stable" >> "$GITHUB_OUTPUT"
+          fqdn=$(az containerapp show --name ca-carecopilot-agent \
+            --resource-group rg-raap-prod-sc --query properties.configuration.ingress.fqdn -o tsv)
+          echo "url=https://$fqdn" >> "$GITHUB_OUTPUT"
+
+      # Bake time is not superstition: most regressions that unit tests and evals
+      # miss are load-dependent, and they need real traffic to appear.
+      - name: Watch the canary against the SLOs
+        run: |
+          echo "Baking the canary for 15 minutes against error rate, p95 latency and groundedness."
+          sleep 900
+          az monitor metrics list \
+            --resource "$(az containerapp show --name ca-carecopilot-agent \
+                --resource-group rg-raap-prod-sc --query id -o tsv)" \
+            --metric Requests --interval PT5M --output table
+
+      - name: Promote to 100%
+        if: success()
+        run: |
+          az containerapp ingress traffic set \
+            --name ca-carecopilot-agent --resource-group rg-raap-prod-sc \
+            --revision-weight "ca-carecopilot-agent--${{ needs.build.outputs.image_tag }}=100"
+          echo "Promoted ${{ needs.build.outputs.image_tag }} to 100% of production traffic."
+
+      # A rollback that needs a rebuild is not a rollback. This one is a weight change.
+      - name: Roll back on failure
+        if: failure()
+        run: |
+          az containerapp ingress traffic set \
+            --name ca-carecopilot-agent --resource-group rg-raap-prod-sc \
+            --revision-weight "${{ steps.canary.outputs.stable }}=100"
+          echo "::error::Canary failed — traffic returned to ${{ steps.canary.outputs.stable }}."

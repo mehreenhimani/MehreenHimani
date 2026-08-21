@@ -1,0 +1,35 @@
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+coverage.xml
+htmlcov/
+.venv/
+venv/
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+tfplan
+plan.json
+plan*.txt
+crash.log
+.terraform.lock.hcl
+
+# Secrets — nothing here should ever exist, and if it does it must not be committed
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+secrets.yaml
+
+# Reports
+eval-report.json
+eval-report.md
+*.sarif
+sbom.cdx.json

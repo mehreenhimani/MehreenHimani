@@ -1,0 +1,181 @@
+# =====================================================================================
+# Alert rules.
+#
+# Two rules of thumb applied throughout:
+#
+#   1. Alert on symptoms, not causes. "p95 latency is above the SLO" is actionable;
+#      "CPU is at 80%" is a fact that may or may not matter.
+#   2. Every page must be worth waking someone for. Anything that can wait until
+#      morning is a ticket, and anything that cannot be acted on is a dashboard.
+#
+# The burn-rate pairs (fast and slow) are the multi-window alerts from the Google SRE
+# workbook: the fast one catches an outage, the slow one catches a leak. A single
+# threshold catches one and misses the other.
+# =====================================================================================
+
+groups:
+  # -----------------------------------------------------------------------------------
+  - name: availability
+    interval: 30s
+    rules:
+      - alert: AgentErrorRateHigh
+        expr: |
+          sum(rate(agent_errors_total[5m])) by (tenant)
+            / sum(rate(agent_requests_total[5m])) by (tenant) > 0.01
+        for: 5m
+        labels: { severity: page, slo: availability }
+        annotations:
+          summary: "Agent error rate above 1% for {{ $labels.tenant }}"
+          description: "{{ $value | humanizePercentage }} of turns are failing. Burning the availability error budget."
+          runbook: "docs/runbooks/agent-error-rate.md"
+
+      - alert: GatewayUnreachable
+        expr: increase(agent_errors_total{kind="gateway_unreachable"}[5m]) > 5
+        for: 2m
+        labels: { severity: page, slo: availability }
+        annotations:
+          summary: "The AI gateway is unreachable"
+          description: "Every AI feature in the company is down while this is firing. Check the LiteLLM container app, its Postgres and its private endpoint."
+
+      - alert: ErrorBudgetBurnFast
+        expr: |
+          sum(rate(agent_errors_total[1h])) / sum(rate(agent_requests_total[1h])) > 14.4 * 0.001
+        for: 5m
+        labels: { severity: page, slo: availability }
+        annotations:
+          summary: "Burning the 30-day error budget 14.4x too fast"
+          description: "At this rate 2% of the monthly budget is gone within the hour."
+
+      - alert: ErrorBudgetBurnSlow
+        expr: |
+          sum(rate(agent_errors_total[6h])) / sum(rate(agent_requests_total[6h])) > 6 * 0.001
+        for: 30m
+        labels: { severity: ticket, slo: availability }
+        annotations:
+          summary: "Sustained error-budget burn at 6x"
+          description: "Not an outage, but the budget will be gone this week if it continues."
+
+  # -----------------------------------------------------------------------------------
+  - name: latency
+    interval: 30s
+    rules:
+      - alert: AgentLatencyP95High
+        expr: |
+          histogram_quantile(0.95,
+            sum(rate(agent_request_duration_seconds_bucket[10m])) by (le, tenant)) > 4
+        for: 10m
+        labels: { severity: ticket, slo: latency }
+        annotations:
+          summary: "p95 turn latency above the 4s objective for {{ $labels.tenant }}"
+          description: "Currently {{ $value | humanizeDuration }}. Check the tool p95s first — a slow system of record shows up here before the model does."
+
+      - alert: ToolLatencyHigh
+        expr: |
+          histogram_quantile(0.95, sum(rate(agent_tool_duration_seconds_bucket[10m])) by (le, tool)) > 2
+        for: 10m
+        labels: { severity: ticket }
+        annotations:
+          summary: "Tool {{ $labels.tool }} p95 above 2s"
+          description: "An agent is only as fast as the systems it calls."
+
+  # -----------------------------------------------------------------------------------
+  - name: agent_behaviour
+    interval: 30s
+    rules:
+      - alert: AgentLoopingNearTheLimit
+        expr: |
+          sum(rate(agent_loop_termination_total{reason="max_steps_reached"}[15m]))
+            / sum(rate(agent_requests_total[15m])) > 0.05
+        for: 15m
+        labels: { severity: ticket }
+        annotations:
+          summary: "More than 5% of turns are hitting the step ceiling"
+          description: "The agent cannot close these out on its own. Usually a prompt regression, a tool returning an unexpected shape, or a genuinely new intent."
+
+      - alert: ToolErrorRateHigh
+        expr: |
+          sum(rate(agent_tool_calls_total{status="error"}[10m])) by (tool)
+            / sum(rate(agent_tool_calls_total[10m])) by (tool) > 0.1
+        for: 10m
+        labels: { severity: ticket }
+        annotations:
+          summary: "Tool {{ $labels.tool }} failing on more than 10% of calls"
+
+  # -----------------------------------------------------------------------------------
+  - name: quality_and_safety
+    interval: 60s
+    rules:
+      - alert: GroundednessBelowObjective
+        expr: avg_over_time(agent_groundedness_ratio[30m]) < 0.97
+        for: 30m
+        labels: { severity: ticket, slo: groundedness }
+        annotations:
+          summary: "Groundedness below 97% for {{ $labels.tenant }}"
+          description: "The agent is asserting things no tool observation supports. This is the metric that catches a hallucination regression before a customer does."
+
+      - alert: PromptInjectionSpike
+        expr: |
+          sum(rate(guardrail_firings_total{check="prompt_injection"}[10m])) > 0.5
+        for: 5m
+        labels: { severity: page, category: security }
+        annotations:
+          summary: "Prompt-injection attempts spiking"
+          description: "A jump in blocked injection attempts is a security event. The guardrail is holding; find out who is probing and why."
+
+      - alert: EscalationRateSpike
+        expr: |
+          sum(rate(agent_escalations_total[30m])) / sum(rate(agent_requests_total[30m])) > 0.25
+        for: 30m
+        labels: { severity: ticket }
+        annotations:
+          summary: "More than a quarter of turns are escalating to a human"
+          description: "Either the agent got more cautious or customers got harder. Both change the pharmacist staffing model, so somebody needs to know today."
+
+      - alert: EvalScoreRegression
+        expr: agent_eval_score{metric="groundedness"} < 0.95 or agent_eval_score{metric="safety"} < 1
+        for: 5m
+        labels: { severity: page, category: quality }
+        annotations:
+          summary: "Deployed revision is below the eval gate"
+          description: "CI approved this build, so either the online distribution has shifted or the gate is not representative. Roll back the traffic weight first, investigate second."
+
+  # -----------------------------------------------------------------------------------
+  - name: finops
+    interval: 60s
+    rules:
+      - alert: SpendBurnRateHigh
+        expr: |
+          sum(rate(llm_cost_usd_total[1h])) by (tenant) * 24
+            > on(tenant) group_left() (llm_budget_remaining_usd + sum(llm_cost_usd_total) by (tenant))
+        for: 30m
+        labels: { severity: ticket, category: finops }
+        annotations:
+          summary: "{{ $labels.tenant }} is on pace to exceed its daily budget"
+          description: "Projected 24h spend exceeds the cap. The gateway will start refusing calls before the invoice moves, so this is a warning, not an outage."
+
+      - alert: CostPerTurnRegression
+        expr: |
+          histogram_quantile(0.5, sum(rate(llm_cost_usd_per_turn_bucket[1h])) by (le, tenant)) > 0.02
+        for: 1h
+        labels: { severity: ticket, category: finops }
+        annotations:
+          summary: "Median cost per turn doubled for {{ $labels.tenant }}"
+          description: "Usually a routing change, a prompt that grew, or the cache quietly stopping. Check the cache hit rate first."
+
+      - alert: SemanticCacheHitRateCollapsed
+        expr: |
+          sum(rate(llm_cache_events_total{result="hit"}[30m]))
+            / sum(rate(llm_cache_events_total[30m])) < 0.10
+        for: 30m
+        labels: { severity: ticket, category: finops }
+        annotations:
+          summary: "Gateway cache hit rate below 10%"
+          description: "The cache normally absorbs 25-35% of support traffic. A collapse is usually Redis, an embedding model change, or a similarity threshold someone tuned."
+
+      - alert: BudgetNearlyExhausted
+        expr: llm_budget_remaining_usd < 50
+        for: 5m
+        labels: { severity: ticket, category: finops }
+        annotations:
+          summary: "{{ $labels.tenant }} has less than $50 of daily budget left"
+          description: "When it reaches zero the gateway refuses calls and the agent degrades to a human handover. Raise the cap or accept the degradation, deliberately."

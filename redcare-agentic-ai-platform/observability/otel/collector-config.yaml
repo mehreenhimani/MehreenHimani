@@ -1,0 +1,122 @@
+# =====================================================================================
+# OpenTelemetry Collector.
+#
+# The collector exists so the application never imports a vendor SDK. The agent and
+# the gateway emit OTLP; where that telemetry goes is an operations decision made
+# here. Changing from Azure Monitor to anything else is a redeploy of this file.
+#
+# It also does the work you do not want in a request path: batching, retry, memory
+# limiting, and — critically for health data — a redaction pass before anything
+# leaves the cluster.
+# =====================================================================================
+
+receivers:
+  otlp:
+    protocols:
+      grpc: { endpoint: 0.0.0.0:4317 }
+      http: { endpoint: 0.0.0.0:4318 }
+
+  prometheus:
+    config:
+      scrape_configs:
+        - job_name: carecopilot-agent
+          scrape_interval: 15s
+          static_configs:
+            - targets: ["agent:8080"]
+        - job_name: litellm-gateway
+          scrape_interval: 15s
+          static_configs:
+            - targets: ["litellm:4000"]
+
+processors:
+  # First in the chain: under memory pressure the collector must shed load rather
+  # than be OOM-killed, because a dead collector loses the telemetry for the very
+  # incident that killed it.
+  memory_limiter:
+    check_interval: 1s
+    limit_percentage: 75
+    spike_limit_percentage: 20
+
+  batch:
+    timeout: 5s
+    send_batch_size: 512
+    send_batch_max_size: 1024
+
+  resource:
+    attributes:
+      - { key: service.namespace, value: redcare-ai-platform, action: upsert }
+      - { key: deployment.environment, from_attribute: env, action: insert }
+
+  # Redaction at the edge. Prompts and completions can contain health data; a trace
+  # backend is not an approved store for it. Redacting here means the guarantee holds
+  # for every service that ever exports through this collector, not just the ones
+  # that remembered to.
+  attributes/redact:
+    actions:
+      - { key: llm.prompt, action: delete }
+      - { key: llm.completion, action: delete }
+      - { key: http.request.body, action: delete }
+      - { key: customer.email, action: delete }
+      - { key: customer.iban, action: delete }
+      - { key: user.id, action: hash }
+
+  # Keep every error and every slow turn; sample the boring successes. A tail sampler
+  # (rather than a head sampler) can make that decision because it sees the finished
+  # trace — head sampling would have to guess before the request ran.
+  tail_sampling:
+    decision_wait: 10s
+    num_traces: 50000
+    policies:
+      - name: always-keep-errors
+        type: status_code
+        status_code: { status_codes: [ERROR] }
+      - name: always-keep-slow-turns
+        type: latency
+        latency: { threshold_ms: 4000 }
+      - name: always-keep-guardrail-events
+        type: string_attribute
+        string_attribute: { key: guardrail.triggered, values: ["true"] }
+      - name: always-keep-escalations
+        type: string_attribute
+        string_attribute: { key: agent.escalated, values: ["true"] }
+      - name: sample-the-rest
+        type: probabilistic
+        probabilistic: { sampling_percentage: 20 }
+
+exporters:
+  prometheus:
+    endpoint: 0.0.0.0:8889
+    resource_to_telemetry_conversion: { enabled: true }
+
+  debug:
+    verbosity: normal
+
+  # In Azure this is the exporter that matters; locally it is absent, which is why
+  # the pipeline lists it conditionally in the deployed overlay rather than here.
+  # azuremonitor:
+  #   connection_string: ${APPLICATIONINSIGHTS_CONNECTION_STRING}
+  #   maxbatchsize: 100
+  #   maxbatchinterval: 10s
+
+extensions:
+  health_check: { endpoint: 0.0.0.0:13133 }
+  zpages: { endpoint: 0.0.0.0:55679 }
+
+service:
+  extensions: [health_check, zpages]
+  telemetry:
+    logs: { level: info }
+    metrics: { level: detailed }
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [memory_limiter, attributes/redact, tail_sampling, resource, batch]
+      exporters: [debug]
+    metrics:
+      receivers: [otlp, prometheus]
+      processors: [memory_limiter, resource, batch]
+      exporters: [prometheus]
+    logs:
+      receivers: [otlp]
+      processors: [memory_limiter, attributes/redact, resource, batch]
+      exporters: [debug]

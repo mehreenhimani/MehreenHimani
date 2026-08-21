@@ -1,0 +1,141 @@
+# =====================================================================================
+# Terraform apply — the only way infrastructure changes.
+#
+# Nobody holds standing write access to the Azure subscriptions. This workflow does,
+# for a few minutes at a time, via OIDC federation. dev applies automatically on
+# merge; prod waits behind an environment protection rule with two approvers.
+#
+# Drift detection runs nightly. Drift means something changed outside this pipeline,
+# which is either an incident (someone bypassed the process) or a bug (a resource
+# Terraform does not fully own). Both are worth an alert.
+# =====================================================================================
+name: Terraform Apply
+
+on:
+  push:
+    branches: [main]
+    paths: ["infra/terraform/**"]
+  schedule:
+    - cron: "0 3 * * *" # nightly drift detection
+  workflow_dispatch:
+    inputs:
+      environment:
+        type: choice
+        options: [dev, prod]
+        default: dev
+
+permissions:
+  contents: read
+  id-token: write
+  issues: write
+
+concurrency:
+  group: tfapply-${{ github.event.inputs.environment || 'dev' }}
+  cancel-in-progress: false # never interrupt an apply — a half-applied state is worse
+
+jobs:
+  apply-dev:
+    name: Apply — dev
+    if: github.event_name == 'push' || github.event.inputs.environment == 'dev'
+    runs-on: ubuntu-latest
+    environment: dev
+    defaults:
+      run:
+        working-directory: infra/terraform/envs/dev
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.9.8"
+      - uses: azure/login@v2
+        with:
+          client-id: ${{ vars.AZURE_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+      - run: terraform init -input=false
+        env: { ARM_USE_OIDC: "true", ARM_USE_AZUREAD: "true" }
+      - run: |
+          terraform apply -input=false -auto-approve -lock-timeout=10m \
+            -var "subscription_id=${{ vars.AZURE_SUBSCRIPTION_ID }}" \
+            -var "config_storage_account_name=${{ vars.CONFIG_STORAGE_ACCOUNT }}" \
+            -var "config_storage_access_key=${{ secrets.CONFIG_STORAGE_KEY }}"
+        env: { ARM_USE_OIDC: "true", ARM_USE_AZUREAD: "true" }
+
+  apply-prod:
+    name: Apply — prod
+    needs: apply-dev
+    if: github.event_name != 'schedule'
+    runs-on: ubuntu-latest
+    environment: prod # two approvers, enforced by GitHub, not by convention
+    defaults:
+      run:
+        working-directory: infra/terraform/envs/prod
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.9.8"
+      - uses: azure/login@v2
+        with:
+          client-id: ${{ vars.AZURE_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+      - run: terraform init -input=false
+        env: { ARM_USE_OIDC: "true", ARM_USE_AZUREAD: "true" }
+      - run: |
+          terraform apply -input=false -auto-approve -lock-timeout=10m \
+            -var "subscription_id=${{ vars.AZURE_SUBSCRIPTION_ID }}" \
+            -var "config_storage_account_name=${{ vars.CONFIG_STORAGE_ACCOUNT }}" \
+            -var "config_storage_access_key=${{ secrets.CONFIG_STORAGE_KEY }}"
+        env: { ARM_USE_OIDC: "true", ARM_USE_AZUREAD: "true" }
+
+  drift:
+    name: Nightly drift detection
+    if: github.event_name == 'schedule'
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        env: [dev, prod]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.9.8"
+      - uses: azure/login@v2
+        with:
+          client-id: ${{ vars.AZURE_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+      - name: Detect drift
+        id: drift
+        working-directory: infra/terraform/envs/${{ matrix.env }}
+        continue-on-error: true
+        run: |
+          terraform init -input=false
+          terraform plan -detailed-exitcode -input=false -lock=false \
+            -var "subscription_id=${{ vars.AZURE_SUBSCRIPTION_ID }}" \
+            -var "config_storage_account_name=${{ vars.CONFIG_STORAGE_ACCOUNT }}" \
+            -var "config_storage_access_key=${{ secrets.CONFIG_STORAGE_KEY }}" \
+            -no-color > drift.txt
+        env: { ARM_USE_OIDC: "true", ARM_USE_AZUREAD: "true" }
+
+      - name: Open an issue when drift is found
+        if: steps.drift.outcome == 'failure'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const plan = fs.readFileSync(
+              `infra/terraform/envs/${{ matrix.env }}/drift.txt`, 'utf8').slice(0, 50000);
+            await github.rest.issues.create({
+              owner: context.repo.owner, repo: context.repo.repo,
+              title: `Infrastructure drift detected in ${{ matrix.env }}`,
+              labels: ['drift', 'platform', '${{ matrix.env }}'],
+              body: [
+                'The nightly plan is not empty, so live infrastructure no longer matches Git.',
+                '',
+                'Either someone changed a resource outside the pipeline, or Terraform does',
+                'not fully own a resource it thinks it owns. Both are worth closing out.',
+                '', '```terraform', plan, '```',
+              ].join('\n'),
+            });

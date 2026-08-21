@@ -1,0 +1,257 @@
+# =====================================================================================
+# LiteLLM proxy — the Redcare AI Gateway
+# =====================================================================================
+# One OpenAI-compatible endpoint in front of every model any team is allowed to use.
+#
+# Why a gateway at all? Without one, every team integrates a provider SDK directly.
+# You then have N codebases holding provider keys, N retry policies, N cost stories,
+# and no way to answer "who spent what on which model last month" or "revoke access
+# for that team today". The gateway turns all of those from N problems into one.
+#
+# What it owns:
+#   entitlement   which team may call which model
+#   rate limits   rpm / tpm per key, so one team cannot starve another
+#   budgets       hard daily/monthly caps, enforced before the provider is called
+#   reliability   retries, timeouts, cooldowns, cross-region and cross-provider failover
+#   cost          per-key, per-tag spend attribution to a cost centre
+#   caching       exact + semantic cache, the cheapest token is the one not sent
+#   observability callbacks to OTel, Langfuse and Azure Monitor on every call
+#   safety        pre/post-call guardrail hooks
+#
+# Terraform provisions the Container App, the Postgres store, the Redis cache and the
+# Key Vault entries; this file is the gateway's behaviour, versioned in Git and rolled
+# out by the same pipeline as everything else.
+# =====================================================================================
+
+model_list:
+  # --- fast tier: classification, extraction, greetings, high-volume cheap turns ------
+  - model_name: carecopilot-fast
+    litellm_params:
+      model: azure/gpt-4o-mini
+      api_base: os.environ/AZURE_OPENAI_SWEDEN_ENDPOINT
+      api_key: os.environ/AZURE_OPENAI_SWEDEN_KEY     # Key Vault reference, never literal
+      api_version: "2024-10-21"
+      rpm: 2000
+      tpm: 2000000
+      timeout: 20
+      num_retries: 2
+    model_info:
+      id: fast-sweden
+      mode: chat
+      input_cost_per_token: 0.00000015
+      output_cost_per_token: 0.00000060
+      max_input_tokens: 128000
+      supports_function_calling: true
+      metadata: { region: swedencentral, data_zone: eu, tier: fast }
+
+  # --- balanced tier: the default for tool-using agent turns --------------------------
+  - model_name: carecopilot-balanced
+    litellm_params:
+      model: azure/gpt-4o
+      api_base: os.environ/AZURE_OPENAI_SWEDEN_ENDPOINT
+      api_key: os.environ/AZURE_OPENAI_SWEDEN_KEY
+      api_version: "2024-10-21"
+      rpm: 800
+      tpm: 800000
+      timeout: 45
+      num_retries: 2
+    model_info:
+      id: balanced-sweden
+      mode: chat
+      input_cost_per_token: 0.0000025
+      output_cost_per_token: 0.0000100
+      max_input_tokens: 128000
+      supports_function_calling: true
+      metadata: { region: swedencentral, data_zone: eu, tier: balanced }
+
+  # Same public name, second region. LiteLLM load-balances across deployments that
+  # share a model_name — this is how a regional outage becomes a latency blip.
+  - model_name: carecopilot-balanced
+    litellm_params:
+      model: azure/gpt-4o
+      api_base: os.environ/AZURE_OPENAI_WESTEU_ENDPOINT
+      api_key: os.environ/AZURE_OPENAI_WESTEU_KEY
+      api_version: "2024-10-21"
+      rpm: 400
+      tpm: 400000
+      timeout: 45
+      num_retries: 2
+    model_info:
+      id: balanced-westeu
+      mode: chat
+      input_cost_per_token: 0.0000025
+      output_cost_per_token: 0.0000100
+      metadata: { region: westeurope, data_zone: eu, tier: balanced }
+
+  # --- deep tier: multi-step reasoning, long context, second provider -----------------
+  # A second vendor is a reliability and negotiating position, not a preference.
+  - model_name: carecopilot-deep
+    litellm_params:
+      model: anthropic/claude-sonnet-4-5
+      api_key: os.environ/ANTHROPIC_API_KEY
+      rpm: 200
+      tpm: 400000
+      timeout: 90
+      num_retries: 1
+    model_info:
+      id: deep-anthropic
+      mode: chat
+      input_cost_per_token: 0.0000030
+      output_cost_per_token: 0.0000150
+      max_input_tokens: 200000
+      supports_function_calling: true
+      metadata: { region: eu-central, data_zone: eu, tier: deep }
+
+  # --- embeddings for the policy index -----------------------------------------------
+  - model_name: carecopilot-embed
+    litellm_params:
+      model: azure/text-embedding-3-large
+      api_base: os.environ/AZURE_OPENAI_SWEDEN_ENDPOINT
+      api_key: os.environ/AZURE_OPENAI_SWEDEN_KEY
+      api_version: "2024-10-21"
+      rpm: 3000
+    model_info:
+      id: embed-sweden
+      mode: embedding
+      input_cost_per_token: 0.00000013
+      metadata: { region: swedencentral, data_zone: eu, tier: embedding }
+
+# =====================================================================================
+router_settings:
+  # latency-based picks the fastest healthy deployment sharing a model_name
+  routing_strategy: latency-based-routing
+  routing_strategy_args: { ttl: 30, lowest_latency_buffer: 0.2 }
+
+  # Ordered failover chains. Cross-region first (same model, same data zone), only
+  # then cross-provider — a provider switch changes behaviour, so it is the last resort.
+  fallbacks:
+    - carecopilot-balanced: ["carecopilot-deep"]
+    - carecopilot-fast: ["carecopilot-balanced"]
+    - carecopilot-deep: ["carecopilot-balanced"]
+  context_window_fallbacks:
+    - carecopilot-balanced: ["carecopilot-deep"]      # 128k → 200k when the prompt is too long
+  content_policy_fallbacks:
+    - carecopilot-balanced: ["carecopilot-deep"]      # provider content filter → second opinion
+
+  allowed_fails: 3                # failures before a deployment is cooled down
+  cooldown_time: 60               # seconds a cooled-down deployment stays out of rotation
+  num_retries: 2
+  retry_after: 5
+  timeout: 60
+  allowed_fails_policy:
+    RateLimitErrorAllowedFails: 100     # 429 is normal backpressure, not ill health
+    InternalServerErrorAllowedFails: 3
+    TimeoutErrorAllowedFails: 5
+  enable_pre_call_checks: true    # skip deployments that cannot fit the context
+
+# =====================================================================================
+litellm_settings:
+  drop_params: true               # tolerate provider-specific params across vendors
+  set_verbose: false
+  request_timeout: 60
+  telemetry: false                # no phone-home from a health-data platform
+
+  # Callbacks are how one line of config gives every team observability for free.
+  success_callback: ["otel", "langfuse", "prometheus"]
+  failure_callback: ["otel", "langfuse", "prometheus"]
+  service_callback: ["prometheus_system"]
+
+  # Semantic cache: near-duplicate questions ("where is my order", "order status?")
+  # are extremely common in support. 25-35% hit rates are ordinary, and every hit is
+  # a call that costs nothing and returns in single-digit milliseconds.
+  cache: true
+  cache_params:
+    type: redis-semantic
+    host: os.environ/REDIS_HOST
+    port: 6380
+    password: os.environ/REDIS_PASSWORD
+    ttl: 3600
+    similarity_threshold: 0.93
+    redis_semantic_cache_embedding_model: carecopilot-embed
+    supported_call_types: ["acompletion", "completion", "aembedding"]
+
+  # Redaction happens before anything is written to a log or a trace.
+  turn_off_message_logging: false
+  redact_user_api_key_info: true
+  callbacks: ["presidio_pii_masking"]
+  presidio_logging_only: false
+
+  # Provider-agnostic content safety, applied to prompt and to response.
+  guardrails:
+    - guardrail_name: azure-content-safety-input
+      litellm_params:
+        guardrail: azure_content_safety
+        mode: pre_call
+        api_base: os.environ/AZURE_CONTENT_SAFETY_ENDPOINT
+        api_key: os.environ/AZURE_CONTENT_SAFETY_KEY
+        severity_threshold: 2
+        default_on: true
+    - guardrail_name: azure-content-safety-output
+      litellm_params:
+        guardrail: azure_content_safety
+        mode: post_call
+        api_base: os.environ/AZURE_CONTENT_SAFETY_ENDPOINT
+        api_key: os.environ/AZURE_CONTENT_SAFETY_KEY
+        severity_threshold: 2
+        default_on: true
+    - guardrail_name: pii-presidio
+      litellm_params:
+        guardrail: presidio
+        mode: pre_call
+        pii_entities_config:
+          IBAN_CODE: MASK
+          CREDIT_CARD: MASK
+          EMAIL_ADDRESS: MASK
+          PHONE_NUMBER: MASK
+          DATE_TIME: MASK
+        default_on: true
+
+# =====================================================================================
+general_settings:
+  master_key: os.environ/LITELLM_MASTER_KEY          # admin only; never handed to a team
+  salt_key: os.environ/LITELLM_SALT_KEY              # encrypts stored provider keys
+  database_url: os.environ/DATABASE_URL              # Azure PostgreSQL Flexible Server
+
+  store_model_in_db: true          # add a model without redeploying the proxy
+  store_prompts_in_spend_logs: false   # health data must not land in the spend table
+
+  # Budgets are enforced by the proxy before the provider is called. A runaway agent
+  # loop stops at the gateway, not on the invoice.
+  max_budget: 5000                 # USD/month, whole platform
+  budget_duration: 30d
+
+  alerting: ["slack"]
+  alerting_threshold: 30           # seconds — slow-response alert
+  alert_types:
+    - llm_exceptions
+    - llm_too_slow
+    - budget_alerts
+    - db_exceptions
+    - outage_alerts
+    - failed_tracking_spend
+  spend_report_frequency: 7d
+
+  # SSO for the admin UI: platform admins in, everyone else out, via Entra ID.
+  ui_access_mode: admin_only
+  allow_requests_on_db_unavailable: false   # fail closed: no budget store, no calls
+
+  health_check_interval: 300
+  background_health_checks: true
+
+  # OTel export goes to the collector, which fans out to Azure Monitor and Grafana.
+  otel: true
+
+# =====================================================================================
+# Teams and virtual keys. Shown here as documentation of intent — in production these
+# are created through the LiteLLM admin API by Terraform, so the entitlement model is
+# reviewable in a pull request rather than clicked into a UI.
+# =====================================================================================
+# teams:
+#   - team_alias: pharmacy-care
+#     max_budget: 900          # USD/day
+#     models: [carecopilot-fast, carecopilot-balanced, carecopilot-deep, carecopilot-embed]
+#     metadata: { cost_centre: cc-4711-customer-care, data_classification: confidential-health }
+#   - team_alias: growth-marketing
+#     max_budget: 5
+#     models: [carecopilot-fast]
+#     metadata: { cost_centre: cc-8802-growth, data_classification: internal }
