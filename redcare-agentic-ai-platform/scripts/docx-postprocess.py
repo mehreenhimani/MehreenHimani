@@ -13,6 +13,11 @@ Two things pandoc cannot do well, both fixed here rather than by hand:
    narrow column carrying the most prose and rows ten lines tall. Columns are
    re-proportioned to the actual text they contain, damped by a square root so a
    long column widens without crushing its neighbours.
+
+3. Row banding. A twelve-row table of dense prose is hard to track across; a very
+   faint tint on alternate rows fixes that for the cost of one shading element
+   per cell. Word's own banding lives in conditional table formatting, which
+   LibreOffice ignores, so it goes on directly like the header shading.
 """
 from __future__ import annotations
 
@@ -24,6 +29,7 @@ from math import sqrt
 from pathlib import Path
 
 HDR_FILL = "F1F4F8"
+BAND_FILL = "FAFBFD"   # every other body row, barely there but it holds the eye
 RULE = "C8102E"
 MIN_SHARE = 0.11          # no column narrower than this
 MAX_SHARE = 0.58          # no column wider than this
@@ -118,6 +124,9 @@ def process(path: Path) -> tuple[int, int]:
                     prefix += (f'<w:shd w:val="clear" w:color="auto" w:fill="{HDR_FILL}"/>'
                                f'<w:tcBorders><w:bottom w:val="single" w:sz="8" '
                                f'w:space="0" w:color="{RULE}"/></w:tcBorders>')
+                elif _ri % 2 == 0:
+                    prefix += (f'<w:shd w:val="clear" w:color="auto" '
+                               f'w:fill="{BAND_FILL}"/>')
                 return f"<w:tc><w:tcPr>{prefix}{inner}</w:tcPr>"
 
             new_row = re.sub(r"<w:tc>\s*(<w:tcPr>.*?</w:tcPr>)?", fix_cell, row, flags=re.S)
