@@ -1,0 +1,6 @@
+# Private copies carrying the phone number — never commit these.
+# Regenerate with:  ./build.sh "+49 ..."
+*_with_phone.pdf
+*_with_phone.docx
+.cv.phone.html
+.cl.phone.html

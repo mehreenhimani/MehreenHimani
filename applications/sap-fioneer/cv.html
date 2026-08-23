@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Mehreen Himani — CV — Senior Solution Manager</title>
+<style>
+  @page { size: A4; margin: 10mm 12.5mm 8mm 12.5mm; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+
+  body {
+    font-family: "Bitstream Charter", "Liberation Serif", Georgia, serif;
+    font-size: 8.9pt;
+    line-height: 1.235;
+    color: #17171a;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  a { color: inherit; text-decoration: none; border-bottom: 0.4pt solid #9a9a9a; }
+
+  /* ================= Header ================= */
+  header { margin-bottom: 7pt; }
+  h1 {
+    font-family: "Liberation Sans", Arial, sans-serif;
+    font-size: 19.5pt; font-weight: 700; letter-spacing: 2.6pt;
+    text-transform: uppercase; color: #000;
+    margin: 0; padding: 0 0 3pt 0; text-align: center;
+  }
+  .tagline {
+    font-family: "Liberation Sans", Arial, sans-serif;
+    font-size: 8.5pt; font-weight: 700; letter-spacing: 1.5pt;
+    text-transform: uppercase; color: #2e2e33; text-align: center;
+    border-top: 1.1pt solid #000; border-bottom: 0.4pt solid #000;
+    padding: 3.2pt 0 3pt 0; margin: 0;
+  }
+  .contact {
+    font-size: 8.5pt; color: #2e2e33; text-align: center; padding-top: 3.6pt;
+  }
+  .contact .sep { color: #9a9a9a; padding: 0 3.5pt; }
+
+  /* ================= Sections ================= */
+  h2 {
+    font-family: "Liberation Sans", Arial, sans-serif;
+    font-size: 8.6pt; font-weight: 700; letter-spacing: 1.9pt;
+    text-transform: uppercase; color: #000;
+    margin: 6.4pt 0 3pt 0; padding-bottom: 1.6pt;
+    border-bottom: 0.9pt solid #000;
+  }
+  section:first-of-type h2 { margin-top: 3pt; }
+  p { margin: 0 0 3pt 0; text-align: justify; }
+  b, strong { color: #000; font-weight: 700; }
+
+  /* ================= Competencies ================= */
+  .comp div { margin-bottom: 1.6pt; padding-left: 0; }
+  .comp .k {
+    font-family: "Liberation Sans", Arial, sans-serif;
+    font-size: 8.3pt; font-weight: 700; letter-spacing: 0.3pt; color: #000;
+  }
+  .comp .v { font-size: 8.65pt; color: #2b2b30; }
+
+  /* ================= Roles ================= */
+  .role { margin-bottom: 4.5pt; }
+  .role-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10pt; }
+  .role-title {
+    font-family: "Liberation Sans", Arial, sans-serif;
+    font-size: 9.9pt; font-weight: 700; color: #000; letter-spacing: 0.1pt;
+  }
+  .role-title .co { font-weight: 700; }
+  .role-loc { font-weight: 400; color: #3a3a40; }
+  .role-date {
+    font-family: "Liberation Sans", Arial, sans-serif;
+    font-size: 8.2pt; font-weight: 700; letter-spacing: 0.5pt;
+    text-transform: uppercase; color: #3a3a40; white-space: nowrap;
+  }
+  .role-sub { font-style: italic; font-size: 8.6pt; color: #3a3a40; margin: 0.6pt 0 2.4pt 0; }
+
+  ul { margin: 0; padding-left: 10pt; list-style: none; }
+  li { margin-bottom: 1.45pt; text-align: justify; position: relative; padding-left: 0; }
+  li::before {
+    content: "\25AA"; position: absolute; left: -8.6pt; top: 2.3pt;
+    font-size: 5.6pt; line-height: 1; color: #000;
+  }
+
+  .leave {
+    display: flex; justify-content: space-between; align-items: baseline;
+    font-size: 8.4pt; font-style: italic; color: #4a4a52; margin: 0 0 3.4pt 0;
+  }
+  .leave .d { font-style: normal; font-family: "Liberation Sans", Arial, sans-serif;
+    font-size: 8.2pt; letter-spacing: 0.5pt; text-transform: uppercase; }
+
+  /* ================= Projects ================= */
+  .proj { margin-bottom: 2.3pt; }
+  .proj-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10pt; }
+  .proj-name {
+    font-family: "Liberation Sans", Arial, sans-serif;
+    font-size: 8.9pt; font-weight: 700; color: #000;
+  }
+  .proj-date {
+    font-family: "Liberation Sans", Arial, sans-serif;
+    font-size: 8pt; font-weight: 700; letter-spacing: 0.5pt;
+    text-transform: uppercase; color: #3a3a40; white-space: nowrap;
+  }
+  .links { font-family: "Liberation Sans", Arial, sans-serif; font-size: 7.6pt;
+    font-weight: 700; letter-spacing: 0.5pt; text-transform: uppercase; }
+  .links a { border-bottom: 0.4pt solid #7a7a7a; }
+  .links .sep { color: #9a9a9a; padding: 0 2.5pt; border: 0; }
+  .proj p { margin: 0.3pt 0 0 0; font-size: 8.65pt; color: #2b2b30; }
+
+  /* ================= Education ================= */
+  .edu-row { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 1.6pt; }
+  .edu-row .l { font-size: 9.2pt; }
+  .edu-row .l b { font-family: "Liberation Sans", Arial, sans-serif; font-size: 9pt; }
+  .edu-row .r {
+    font-family: "Liberation Sans", Arial, sans-serif;
+    font-size: 8.2pt; font-weight: 700; letter-spacing: 0.4pt;
+    text-transform: uppercase; color: #3a3a40; white-space: nowrap;
+  }
+
+  /* ================= Skills ================= */
+  .skills div { margin-bottom: 1.6pt; font-size: 8.6pt; color: #2b2b30; }
+  .skills .k {
+    font-family: "Liberation Sans", Arial, sans-serif;
+    font-size: 8.3pt; font-weight: 700; letter-spacing: 0.3pt; color: #000;
+  }
+
+  .avoid { break-inside: avoid; page-break-inside: avoid; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Mehreen Himani</h1>
+  <div class="tagline">Senior Solution Manager &nbsp;·&nbsp; AI Product &amp; Solution Management &nbsp;·&nbsp; Core Banking, Agentic AI &amp; SAP</div>
+  <div class="contact">
+    Stuttgart, Germany <span class="sep">|</span>
+    <!--PHONE-->
+    <a href="mailto:himanimehreen@gmail.com">himanimehreen@gmail.com</a> <span class="sep">|</span>
+    <a href="https://www.linkedin.com/in/mehreenhimani">linkedin.com/in/mehreenhimani</a> <span class="sep">|</span>
+    <a href="https://github.com/mehreenhimani">github.com/mehreenhimani</a> <span class="sep">|</span>
+    <a href="https://mehreens-ai-story.lovable.app">Portfolio</a> <span class="sep">|</span>
+    English C1 <span class="sep">·</span> German B1
+  </div>
+</header>
+
+<section class="avoid">
+  <h2>Profile</h2>
+  <p>Product &amp; Solution Manager with <b>13+ years in regulated financial services</b> and <b>8+ years in hybrid business–technology roles</b> (Solution Manager, Product Owner, Business Technology Analyst) — working at the intersection of banking business and AI technology. Deep <b>core banking process expertise across accounts, deposits, lending, payments, post-trade and financial crime</b>, built at UBS, Standard Chartered, Credit Suisse and Capgemini. <b>Hands-on with (agentic) AI</b> — multi-agent orchestration, prompt and context engineering, model configuration, RAG and LLM evaluation — with <b>7 production AI products shipped in the last 12 months</b>. Identifies opportunities with business and sales stakeholders, derives and structures requirements, translates them into technical solution designs with AI engineers and architects, and builds the prototypes and demos that prove business value. Working knowledge of <b>SAP landscapes and S/4HANA</b> (test management, knowledge management, migration delivery). English C1, German B1.</p>
+</section>
+
+<section class="avoid">
+  <h2>Core Competencies</h2>
+  <div class="comp">
+    <div><span class="k">AI &amp; Agentic Solutioning</span> <span class="v">— Agentic AI &amp; multi-agent orchestration · Prompt &amp; context engineering · AI model configuration · RAG &amp; retrieval design · LLM evaluation, guardrails &amp; safety · Human-in-the-loop design · Rapid AI prototyping</span></div>
+    <div><span class="k">Core Banking &amp; Financial Services</span> <span class="v">— Accounts &amp; deposits · Lending, credit risk &amp; stress testing · Payments, fraud &amp; settlement · KYC / AML &amp; financial crime · Post-trade operations · Basel III, ECB FINREP · EU AI Act, DORA, GDPR</span></div>
+    <div><span class="k">Solution &amp; Business Management</span> <span class="v">— Opportunity identification &amp; pre-sales support · Business and technical requirements engineering · Business-to-technical design · Solution demos &amp; prototypes · Workshop facilitation · Senior stakeholder management</span></div>
+    <div><span class="k">Enterprise Architecture &amp; SAP</span> <span class="v">— SAP S/4HANA migration delivery · SAP test strategy &amp; test management · SAP knowledge management · Banking system landscapes &amp; integration · API / data-flow understanding · CI/CD &amp; shift-left quality</span></div>
+  </div>
+</section>
+
+<section>
+  <h2>Professional Experience</h2>
+
+  <div class="role">
+    <div class="role-head">
+      <div class="role-title">AI Product &amp; Solution Manager <span class="co">— Capgemini</span><span class="role-loc">, Stuttgart, Germany</span></div>
+      <div class="role-date">Apr 2023 – Present</div>
+    </div>
+    <div class="role-sub">Business–AI solutioning across banking, capital markets and SAP-enabled enterprise landscapes — from opportunity identification with sales, through requirements and solution design, to hands-on agentic AI prototypes and production rollout.</div>
+    <ul>
+      <li><b>Opportunity identification &amp; business development:</b> work alongside <b>sales, pre-sales and account leadership</b> to identify and qualify AI-based innovation opportunities across banking clients and internal business units — shaped <b>12+ AI use cases</b> spanning accounts, lending, payments and compliance operations, quantified <b>$600K+ in annual savings potential</b>, and drove a <b>3x increase in AI pilot proposals within three months</b>.</li>
+      <li><b>QA Radar — product built with the sales team:</b> co-created <b>“QA Radar”</b> with sales, turning delivery and quality data into an opportunity-intelligence asset used for account planning, client positioning and bid support — giving sales an evidence-based conversation starter and converting delivery insight into a repeatable pipeline generator.</li>
+      <li><b>Requirements to solution design:</b> run discovery with senior business and product stakeholders; gather, structure and prioritise <b>business and technical requirements</b> for AI use cases against customer value and operational feasibility, then translate business goals into <b>solution designs and technical concepts</b> with AI engineers, architects, developers and core banking / SAP teams — <b>85% stakeholder alignment achieved in the first sprint cycle</b>.</li>
+      <li><b>Hands-on agentic AI ownership:</b> design, configure and iterate <b>multi-agent workflows</b> (planner → reviewer → summarizer) with tool use, retrieval grounding and a three-layer guardrail pipeline; personally handle <b>prompt engineering, context engineering, model configuration and data interaction</b>, then advance working prototypes into standard, reusable enhancements.</li>
+      <li><b>Solution demos, prototypes &amp; adoption:</b> build and run <b>executive-level solution demos and working prototypes</b> that translate abstract AI capability into concrete banking business outcomes — adopted across <b>4 business units and 40+ users</b> in regulated compliance teams, with a <b>5-phase AI adoption playbook</b> that became the organisational standard.</li>
+      <li><b>AI evaluation, governance &amp; trust:</b> designed a lightweight <b>LLM evaluation framework</b> (accuracy, consistency, safety, latency, cost) and embedded <b>EU AI Act and DORA</b> controls into agent reasoning and audit trails — <b>+25% answer consistency, −40% hallucination rate, −30% model failure rate</b> and a <b>35% efficiency improvement</b> in targeted processes.</li>
+      <li><b>SAP test management &amp; S/4HANA migration:</b> own <b>test strategy and test management for SAP S/4HANA migration</b> programmes — risk-based scoping, requirement-to-test traceability, defect governance and release readiness sign-off with business process owners across finance and operations.</li>
+      <li><b>SAP knowledge management:</b> established a structured <b>SAP knowledge management practice</b> (process documentation, reusable solution assets, onboarding enablement) and extended it with AI-assisted retrieval so teams receive <b>citation-grounded answers</b> from SAP process and test artefacts instead of tribal knowledge.</li>
+      <li><b>Workshops &amp; connector role:</b> lead <b>cross-functional workshops</b> and collaborative working sessions with international business and technical teams — acting as the bridge and translator between business expectation and technical execution.</li>
+    </ul>
+  </div>
+
+  <div class="leave"><span>Parental Leave (Elternzeit)</span><span class="d">Oct 2022 – Mar 2023</span></div>
+
+  <div class="role">
+    <div class="role-head">
+      <div class="role-title">Senior Product Manager <span class="co">— Standard Chartered Bank</span><span class="role-loc">, Warsaw, Poland</span></div>
+      <div class="role-date">Mar 2022 – Sep 2022</div>
+    </div>
+    <div class="role-sub">Reduced audit risk 40% with integrated governance framework.</div>
+    <ul>
+      <li>Owned product vision and roadmap for the <b>Credit Risk Analytics Platform</b> serving 50+ stakeholders (Risk, Finance, Compliance) — architected Basel III stress-testing and ECB FINREP reporting workflows; reduced forecast cycle from 5 days to 8 hours (73% faster).</li>
+      <li>Prioritised <b>150+ credit risk features</b> (RICE); implemented shift-left testing with BDD scenarios and 50+ automated validation checks — cut calculation errors 85% and audit findings 60%.</li>
+      <li>Managed cross-functional delivery across 4 time zones (Warsaw, London, Mumbai, Singapore); escalation point for CRO/CFO on regulatory deadlines and capital planning.</li>
+    </ul>
+  </div>
+
+  <div class="role">
+    <div class="role-head">
+      <div class="role-title">Product Manager <span class="co">— UBS</span><span class="role-loc">, Wroclaw, Poland</span></div>
+      <div class="role-date">Dec 2020 – Feb 2022</div>
+    </div>
+    <div class="role-sub">Cut AML false positives 45% through Actimize integration.</div>
+    <ul>
+      <li>Redesigned alert prioritisation logic in <b>NICE Actimize</b> — cut AML false positives 45%, saved 2,000+ analyst hours annually, and improved suspicious-activity detection 30%.</li>
+      <li>Facilitated PI planning across 3 agile teams; improved sprint throughput 25% and cut cycle time from 4 weeks to 2.5 weeks.</li>
+      <li>Coordinated cross-functional delivery across the USA and Germany — 4 major releases on time, 95% stakeholder satisfaction.</li>
+    </ul>
+  </div>
+
+  <div class="leave"><span>Parental Leave (Elternzeit)</span><span class="d">Jun 2019 – Nov 2020</span></div>
+
+  <div class="role">
+    <div class="role-head">
+      <div class="role-title">Senior Product Owner <span class="co">— Credit Suisse</span><span class="role-loc">, Wroclaw, Poland</span></div>
+      <div class="role-date">Jul 2018 – May 2019</div>
+    </div>
+    <div class="role-sub">Improved Loan Stress Testing UX, driving 30% faster release cycles.</div>
+    <ul>
+      <li>Redesigned the <b>Loan Stress Testing</b> experience; created a UX index predicting optimal update timing — reduced P&amp;L forecasting errors 20%.</li>
+      <li>Owned backlog and PI planning for 2 scrum teams — delivered 30+ features over 4 PIs with 90% on-time delivery.</li>
+    </ul>
+  </div>
+
+  <div class="role">
+    <div class="role-head">
+      <div class="role-title">Product Owner <span class="co">— Credit Suisse</span><span class="role-loc">, London, UK</span></div>
+      <div class="role-date">May 2017 – Jun 2018</div>
+    </div>
+    <div class="role-sub">Managed $400K P&amp;L for post-trade settlement automation.</div>
+    <ul>
+      <li>Owned <b>$400K P&amp;L</b> for post-trade settlement automation; introduced CI/CD, reducing regression testing time 60% and settlement failures 25%.</li>
+      <li>Led a 23-member offshore team across equity, stock borrow/loan, asset servicing and clearing — 97% SLA adherence, 35% defect leakage reduction.</li>
+    </ul>
+  </div>
+
+  <div class="role">
+    <div class="role-head">
+      <div class="role-title">Associate Product Manager <span class="co">— Wipro Technologies</span><span class="role-loc">, Pune, India</span></div>
+      <div class="role-date">Jan 2013 – Apr 2017</div>
+    </div>
+    <div class="role-sub">Built internal tool “Kandoo” saving $205K annually.</div>
+    <ul>
+      <li>Built <b>“Kandoo,”</b> an internal automation tool adopted by PMs, POs and QA — saved $205K annually, cut end-to-end trade testing time 50%.</li>
+      <li>Coordinated front-to-back testing across 6 agile teams — 99.2% test coverage, zero production-critical defects for 8 consecutive releases.</li>
+    </ul>
+  </div>
+</section>
+
+<section>
+  <h2>AI Solutions — Built &amp; Shipped</h2>
+
+  <div class="proj avoid">
+    <div class="proj-head">
+      <div><span class="proj-name">BankFlow AI — Agentic Core Banking Platform</span> <span class="links"><a href="https://github.com/mehreenhimani/bankflow-ai">GitHub</a></span></div>
+      <div class="proj-date">Jun 2026</div>
+    </div>
+    <p>Multi-agent orchestration across 8 tools with a 3-layer guardrail pipeline and LLM-as-judge evaluation suite; EU AI Act, AML and DORA controls built into agent reasoning, tool use and audit trail.</p>
+  </div>
+
+  <div class="proj avoid">
+    <div class="proj-head">
+      <div><span class="proj-name">PayClear AI — Zero-Trust Payment Integrity Engine</span> <span class="links"><a href="https://github.com/mehreenhimani/payclear-AI">GitHub</a></span></div>
+      <div class="proj-date">Jun 2026</div>
+    </div>
+    <p>Pre-execution invoice interception, IBAN verification and visual spoofing detection with composite Trust Index scoring applied before capital moves.</p>
+  </div>
+
+  <div class="proj avoid">
+    <div class="proj-head">
+      <div><span class="proj-name">OnboardIQ — Explainable KYC Onboarding Triage</span> <span class="links"><a href="https://kyc-onboarding-sigma.vercel.app">Live Demo</a><span class="sep">·</span><a href="https://github.com/mehreenhimani/KYC-Onboarding">GitHub</a></span></div>
+      <div class="proj-date">Jun 2026</div>
+    </div>
+    <p>Risk triage routing applicants to auto-approve, fast-track or manual review with full decision traceability, explainable agent reasoning and onboarding funnel analytics.</p>
+  </div>
+
+  <div class="proj avoid">
+    <div class="proj-head">
+      <div><span class="proj-name">PayGuard AI — Real-Time Payments Fraud Detection</span> <span class="links"><a href="https://payguard-ai-sigma.vercel.app">Live Demo</a><span class="sep">·</span><a href="https://github.com/mehreenhimani/payguard-ai">GitHub</a></span></div>
+      <div class="proj-date">Jun 2026</div>
+    </div>
+    <p>Real-time transaction fraud scoring with AI-generated explanations, an analyst review queue and built-in EU AI Act compliance scoring (87/100).</p>
+  </div>
+
+  <div class="proj avoid">
+    <div class="proj-head">
+      <div><span class="proj-name">PulseAI — Multi-Agent Product Intelligence System</span> <span class="links"><a href="https://github.com/mehreenhimani/pulseai">GitHub</a></span></div>
+      <div class="proj-date">Apr 2026</div>
+    </div>
+    <p>4-agent autonomous pipeline (Feedback Harvester → Signal Analyst → Priority Engine → PRD Writer) on n8n and the Claude API with HuggingFace NLP — reduces manual feedback analysis ~80%.</p>
+  </div>
+
+  <div class="proj avoid">
+    <div class="proj-head">
+      <div><span class="proj-name">RegCopilot — RAG Copilot for EU Regulatory Compliance</span> <span class="links"><a href="https://github.com/mehreenhimani/regcopilot">GitHub</a></span></div>
+      <div class="proj-date">Feb 2026</div>
+    </div>
+    <p>RAG pipeline over 33,536 regulation chunks (EU AI Act, DORA, AMLD6, GDPR) on Supabase pgvector — 82% accuracy, citation-grounded answers only, immutable audit trail, human review flagging.</p>
+  </div>
+
+  <div class="proj avoid">
+    <div class="proj-head">
+      <div><span class="proj-name">ComplianceIQ — AI Compliance Alert Triage</span></div>
+      <div class="proj-date">Mar 2026</div>
+    </div>
+    <p>AI risk scoring across 6 alert categories with confidence scores and plain-language reasoning per alert — simulated false positives 45% → 22%, resolution time 8.4h → 4.2h, 2,100 analyst hours saved annually.</p>
+  </div>
+</section>
+
+<section class="avoid">
+  <h2>Education</h2>
+  <div class="edu-row"><div class="l"><b>Vellore Institute of Technology</b> — M.Sc. Information Technology</div><div class="r">Pune, IN · Jan 2013 – Jun 2017</div></div>
+  <div class="edu-row"><div class="l"><b>Bangalore University</b> — M.Sc. Biotechnology</div><div class="r">Bangalore, IN · Jun 2010 – Nov 2012</div></div>
+</section>
+
+<section>
+  <h2>Skills, Tools &amp; Certifications</h2>
+  <div class="skills">
+    <div><span class="k">AI &amp; Technology</span> — GenAI, LLMs, Agentic &amp; Multi-Agent Systems, RAG, Prompt Engineering, Context Engineering, AI Evaluation Frameworks, Guardrails &amp; Safety, Human-in-the-Loop Design, AI Workflow Automation, Claude API, HuggingFace, n8n, Supabase (pgvector), Cursor, Lovable, Python, SQL, PostgreSQL, CI/CD, APIs.</div>
+    <div><span class="k">Enterprise &amp; SAP</span> — SAP S/4HANA migration, SAP test management &amp; test strategy, SAP knowledge management, banking system landscapes, solution architecture fundamentals, requirement traceability, release governance.</div>
+    <div><span class="k">Banking &amp; Regulatory</span> — Accounts &amp; deposits, Lending &amp; credit risk, Payments &amp; fraud, Post-trade settlement, AML/CFT (NICE Actimize), KYC, Basel III, ECB FINREP, EU AI Act, DORA, GDPR.</div>
+    <div><span class="k">Product, Delivery &amp; Leadership</span> — Solution design, Requirements engineering, Roadmapping, OKRs &amp; KPIs, RICE, Agile / Scrum / SAFe PI Planning, A/B testing, GTM strategy, UX &amp; usability testing, Senior stakeholder management, Cross-functional international team leadership, Workshop facilitation, Mentorship.</div>
+    <div><span class="k">Certifications</span> — AI Agents Certified PM, Product School (Feb 2026) · LLM Foundations Certified PM, Product School (Feb 2026) · Certified Scrum Product Owner® (CSPO®), Scrum Alliance (Dec 2022). &nbsp;<span class="k">Languages</span> — English (C1, fluent) · German (B1, actively advancing).</div>
+  </div>
+</section>
+
+</body>
+</html>
