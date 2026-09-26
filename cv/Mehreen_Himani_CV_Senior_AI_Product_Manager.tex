@@ -1,7 +1,7 @@
 % Compile with: xelatex Mehreen_Himani_CV_Senior_AI_Product_Manager.tex
-\documentclass[10pt,a4paper]{article}
+\documentclass[10pt,letterpaper]{article}
 
-\usepackage[a4paper,left=17mm,right=17mm,top=13mm,bottom=12mm]{geometry}
+\usepackage[letterpaper,left=0.62in,right=0.62in,top=0.45in,bottom=0.45in]{geometry}
 \usepackage{fontspec}
 \usepackage{titlesec}
 \usepackage{enumitem}
@@ -10,184 +10,185 @@
 \usepackage{needspace}
 \usepackage[hidelinks]{hyperref}
 
-\setmainfont{EBGaramond12}[
-  Path = /usr/share/fonts/opentype/ebgaramond/, Extension = .otf,
-  UprightFont = *-Regular, ItalicFont = *-Italic, BoldFont = *-Bold,
-  BoldItalicFont = *-Italic, BoldItalicFeatures = {FakeBold=1.5},
-  Numbers = {Lining,Proportional}]
+\setmainfont{Caladea}
 
 \pagestyle{empty}
 \setlength{\parindent}{0pt}
 \linespread{1.0}
-\AtBeginDocument{\fontsize{10.6}{12.9}\selectfont}
 \raggedright
 
-% Section headings: letter-spaced capitals over a hairline rule
-\titleformat{\section}{\needspace{4\baselineskip}\fontsize{11}{13}\selectfont\addfontfeature{LetterSpace=12}}{}{0pt}{\MakeUppercase}[\vspace{-6pt}\rule{\textwidth}{0.4pt}]
-\titlespacing*{\section}{0pt}{9pt}{5pt}
+% Section headings: letter-spaced capitals over a full-width rule
+\titleformat{\section}{\needspace{4\baselineskip}\fontsize{11}{13}\selectfont\addfontfeature{LetterSpace=8,Kerning=Off}}{}{0pt}{\MakeUppercase}[\vspace{-6.5pt}\rule{\textwidth}{0.8pt}]
+\titlespacing*{\section}{0pt}{10pt}{5pt}
 
-\setlist[itemize]{leftmargin=1.05em,label={\raisebox{0.2ex}{\scriptsize$\bullet$}},itemsep=1pt,parsep=0pt,topsep=2pt}
+\setlist[itemize]{leftmargin=1.3em,label={\raisebox{0.15ex}{\footnotesize\textbullet}},itemsep=1.2pt,parsep=0pt,topsep=1.5pt}
 
-% \role{Company}{Location}{Dates}{Title}
-\newcommand{\role}[4]{%
-  \needspace{6\baselineskip}%
-  {\bfseries #1}\,\textperiodcentered\,#2\hfill #3\\[0.5pt]
-  {\itshape #4}%
+% \role{Title, Company, Location}{Dates}{Italic one-line summary}
+\newcommand{\role}[3]{%
+  \needspace{5\baselineskip}%
+  {\fontsize{11}{13}\selectfont\bfseries #1}\hfill{\fontsize{11}{13}\selectfont #2}\\
+  {\itshape #3}%
 }
-% \project{Name}{Tagline}{Date and links}{Stack}
-\newcommand{\project}[4]{%
-  \needspace{4\baselineskip}%
-  {\bfseries #1} --- {\itshape #2}\hfill {\small #3}\\[0.5pt]
-  {\small #4}%
+% \project{Name — Tagline}{Links}{Date}
+\newcommand{\project}[3]{%
+  \needspace{3\baselineskip}%
+  {\fontsize{11}{13}\selectfont\bfseries #1}\hspace{0.5em}{\footnotesize #2}\hfill{\itshape #3}%
 }
-\newcommand{\gap}{\vspace{6pt}}
-\newcommand{\sep}{\unskip\hspace{0.55em}\textperiodcentered\hspace{0.55em}\ignorespaces}
+\newcommand{\gap}{\vspace{6.5pt}}
+\newcommand{\sep}{\unskip\hspace{0.5em}|\hspace{0.5em}\ignorespaces}
+\newcommand{\mdot}{\unskip\hspace{0.35em}·\hspace{0.35em}\ignorespaces}
 
 \begin{document}
 
 % ---------- Header ----------
 \begin{center}
-  {\fontsize{25}{28}\selectfont\addfontfeature{LetterSpace=14}MEHREEN HIMANI}\\[5pt]
-  {\addfontfeature{LetterSpace=6}\MakeUppercase{Senior AI Product Manager \sep GenAI \& Data Products \sep Financial Services}}\\[5pt]
-  {\small
-  +49 152 1516 2753 \sep \href{mailto:himanimehreen@gmail.com}{himanimehreen@gmail.com} \sep
-  \href{https://www.linkedin.com/in/mehreenhimani/}{LinkedIn} \sep
+  {\fontsize{21}{25}\selectfont\bfseries Mehreen Himani}\\[3pt]
+  {\fontsize{12}{14}\selectfont\itshape Senior AI Product Manager \sep GenAI \& Data Products \sep Financial Services}\\[3pt]
+  Stuttgart, Germany \sep +49-152-1516-2753 \sep \href{mailto:himanimehreen@gmail.com}{himanimehreen@gmail.com} \sep
+  \href{https://www.linkedin.com/in/mehreenhimani}{LinkedIn} \sep
   \href{https://github.com/mehreenhimani}{GitHub} \sep
-  \href{https://mehreens-ai-story.lovable.app}{Portfolio} \sep
-  Germany (Permanent Residency)}
+  \href{https://mehreens-ai-story.lovable.app}{Portfolio}
 \end{center}
-\vspace{-6pt}
+\vspace{-8pt}
 
 % ---------- Summary ----------
-\section{Profile}
-Senior AI Product Manager with 13+ years in regulated financial services across Credit Suisse, UBS, Standard Chartered
-and Capgemini. Combines deep credit risk, AML/CFT and compliance expertise (Basel III/IV, ECB, EU AI Act, DORA, GDPR)
-with hands-on LLM, RAG and multi-agent product delivery; 7 AI products built and shipped in the last 12 months.
-Owns product vision, roadmap, P\&L and backlog governance for international agile teams of 50+ across Europe and Asia.
+\section{Summary}
+Senior AI Product Manager with 13+ years in regulated financial services across Credit Suisse, UBS, Standard Chartered and
+Capgemini. Pairs deep credit risk, AML/CFT and compliance expertise (Basel III/IV, ECB, EU AI Act, DORA, GDPR) with hands-on
+LLM, RAG and multi-agent product delivery; shipped 7 AI products in the last 12 months. Owns product vision, roadmap, P\&L and
+backlog governance, leading cross-functional teams of 50+ across Europe and Asia.
 
 % ---------- Experience ----------
-\section{Professional Experience}
+\section{Experience}
 
-\role{Capgemini}{Stuttgart, Germany}{Apr 2023 -- Present}{Senior AI Product Manager, AI Adoption \& Governance}
+\role{Senior AI Product Manager, Capgemini, Stuttgart, Germany}{Apr 2023 -- Present}
+{Firm-wide AI adoption and regulated product strategy across banking, capital markets and automotive.}
 \begin{itemize}
-  \item Launched a firm-wide AI enablement programme using LLM-powered multi-agent workflows across 4 business units,
-        identifying \$600K+ in annual savings; the phased adoption roadmap became the organisational standard.
-  \item Defined the AI product roadmap with EU AI Act compliance gates, risk governance milestones and GDPR reviews
-        embedded in every release.
-  \item Prioritised 12+ AI use cases with delivery and risk leads, achieving 85\% stakeholder alignment in the first sprint
-        and a threefold increase in AI pilot proposals within 3 months.
-  \item Built an AI evaluation framework with context engineering: answer consistency up 25\%, hallucinations down 40\%,
-        model failures down 30\%.
-  \item Owned a 200+ item backlog (RICE, OKR-linked acceptance criteria); reduced time-to-market 25\%, moved to weekly
-        releases and secured 500K in additional investment through risk-adjusted ROI cases to executive leadership.
+  \item Launched AI enablement programme using LLM-powered multi-agent workflows (planner, reviewer, summariser); identified
+        \$600K+ in annual savings, drove adoption across 4 business units, and set the organisational AI adoption roadmap.
+  \item Defined the AI product roadmap with EU AI Act compliance gates, risk governance and GDPR reviews in every release.
+  \item Prioritised 12+ high-impact AI use cases with delivery leads and risk teams; achieved 85\% stakeholder alignment in the
+        first sprint and a 3x increase in AI pilot proposals within 3 months.
+  \item Built a lightweight AI evaluation framework using context engineering; improved LLM answer consistency 25\%, cut
+        hallucination rate 40\% and reduced model failure rate 30\%.
 \end{itemize}
 \gap
 
-\role{Standard Chartered Bank}{Warsaw, Poland}{Mar 2022 -- Mar 2023}{Senior Product Manager, Credit Risk Platform}
+\role{Senior Product Manager, Standard Chartered Bank, Warsaw, Poland}{Mar 2022 -- Mar 2023}
+{Reduced audit risk 40\% with an integrated credit risk governance framework.}
 \begin{itemize}
-  \item Owned vision and roadmap for the Credit Risk Analytics Platform serving 50+ stakeholders across Risk, Finance and
-        Compliance; reduced audit risk exposure 40\% through an integrated governance framework.
-  \item Architected Basel III stress-testing and ECB FINREP reporting, cutting the forecast cycle from 5 days to 8 hours.
-  \item Prioritised 150+ credit risk features with full traceability from regulatory requirement to release; introduced
-        BDD and 50+ automated checks, reducing calculation errors 85\% and audit findings 60\%.
-  \item Led delivery across 4 time zones as escalation point for the CRO and CFO on regulatory deadlines and capital planning.
+  \item Owned product vision and roadmap for the Credit Risk Analytics Platform serving 50+ stakeholders (Risk, Finance,
+        Compliance); architected Basel III stress-testing and ECB FINREP workflows, cutting the forecast cycle from 5 days to 8 hours.
+  \item Prioritised 150+ credit risk features (RICE); introduced shift-left testing, BDD and 50+ automated validation checks,
+        cutting calculation errors 85\% and audit findings 60\%.
+  \item Led cross-functional delivery across 4 time zones; escalation point for CRO/CFO on regulatory deadlines and capital planning.
 \end{itemize}
 \gap
 
-\role{UBS}{Wroclaw, Poland}{Dec 2020 -- Feb 2022}{Product Manager, AML Risk Platform}
+\role{Product Manager, UBS, Wroclaw, Poland}{Dec 2020 -- Feb 2022}
+{Reduced AML false positives from 45\% to 22\% through NICE Actimize alert triage.}
 \begin{itemize}
-  \item Owned vision, roadmap and backlog for the NICE Actimize AML alert triage system across 3 agile teams in the USA,
-        Germany and Poland.
-  \item Redesigned risk-scoring and alert prioritisation logic, reducing false positives from 45\% to 22\%, saving 2,000+
-        analyst hours a year and improving suspicious-activity detection 30\%.
-  \item Ran PI planning across 3 time zones, raising sprint throughput 25\% and cutting cycle time from 4 to 2.5 weeks;
-        delivered 4 major releases on time with 95\% stakeholder satisfaction.
+  \item Owned vision, roadmap and backlog for the AML alert triage system across 3 agile teams in the USA, Germany and Poland.
+  \item Redesigned alert prioritisation logic, saving 2,000+ analyst hours annually and improving suspicious-activity detection 30\%.
+  \item Facilitated PI planning across 3 time zones; improved sprint throughput 25\% and cut cycle time from 4 to 2.5 weeks.
+  \item Delivered 4 major releases on time with audit-ready documentation and 95\% stakeholder satisfaction.
 \end{itemize}
 \gap
 
-\role{Credit Suisse}{Wroclaw, Poland}{Jul 2018 -- Nov 2020}{Senior Product Owner, Loan Stress Testing \& Capital Risk}
+\role{Senior Product Owner, Credit Suisse, Wroclaw, Poland}{Jul 2018 -- Nov 2020}
+{Loan Stress Testing and capital risk platform (Basel III, ECB); 30\% faster release cycles.}
 \begin{itemize}
-  \item Owned the roadmap for Basel III capital calculation, ECB scenario modelling and P\&L forecasting across the EMEA
-        credit portfolio, delivering 30\% faster release cycles.
-  \item Translated Basel III/IV and IFRS 9 requirements into user stories for quant, engineering and risk teams, with a
-        95\% first-review sign-off rate.
-  \item Introduced a UX index predicting optimal update timing, reducing P\&L forecasting errors 20\%; delivered 30+
-        features over 4 PIs with 90\% on-time delivery.
+  \item Owned the roadmap for Basel III capital calculation, ECB scenario modelling and EMEA P\&L forecasting.
+  \item Redesigned the stress testing experience with a UX index predicting optimal update timing; P\&L forecast errors down 20\%.
+  \item Owned backlog and PI planning for 2 scrum teams; delivered 30+ features over 4 PIs with 90\% on-time delivery.
 \end{itemize}
 \gap
 
-\role{Credit Suisse}{London, United Kingdom}{May 2017 -- Jun 2018}{Product Owner, Post-Trade Settlement}
+\role{Product Owner, Credit Suisse, London, UK}{May 2017 -- Jun 2018}
+{Managed \$400K P\&L for post-trade settlement automation across EMEA, US and APAC.}
 \begin{itemize}
-  \item Owned a \$400K P\&L and the EMEA/US/APAC settlement roadmap; translated risk requirements into 50+ epics,
-        retiring 12 legacy components.
-  \item Led a 23-member offshore team across equity, stock borrow/loan, clearing and asset servicing with 97\% SLA
-        adherence; CI/CD automation reduced settlement failures 25\% and regression testing time 60\%.
+  \item Introduced CI/CD for the settlement platform, reducing regression testing time 60\% and settlement failures 25\%.
+  \item Led a 23-member offshore team across equity, stock borrow/loan, asset servicing and clearing; 97\% SLA adherence.
 \end{itemize}
 \gap
 
-\role{Wipro Technologies}{Pune, India}{Jan 2013 -- Apr 2017}{Associate Product Manager}
+\role{Associate Product Manager, Wipro Technologies, Pune, India}{Jan 2013 -- Apr 2017}
+{Built internal tool ``Kandoo'', saving \$205K annually.}
 \begin{itemize}
-  \item Built ``Kandoo'', an internal automation tool adopted by 40+ PMs, POs and QA staff, halving trade testing time
-        and saving \$205K annually.
-  \item Coordinated front-to-back settlement testing for top 5 global banks across 6 agile teams: 99.2\% test coverage and
-        zero production-critical defects over 8 consecutive releases.
+  \item Built ``Kandoo'', an internal automation tool adopted by 40+ PMs, POs and QA staff; cut end-to-end trade testing time 50\%.
+  \item Coordinated front-to-back testing across 6 agile teams: 99.2\% coverage, zero critical defects in 8 consecutive releases.
 \end{itemize}
 
-% ---------- Portfolio ----------
-\section{AI Product Portfolio}
+% ---------- AI Products ----------
+\section{AI Products --- Built \& Shipped}
 
-\project{BankFlow AI}{Agentic Banking Platform}{2026 \sep \href{https://mehreens-ai-story.lovable.app}{Demo} \sep \href{https://github.com/mehreenhimani}{GitHub}}
-{Multi-agent orchestration, guardrails, LLM-as-judge evaluation}
+\project{BankFlow AI --- Agentic Banking Platform}{\href{https://bankflow-ai-app-deve-ox70.bolt.host/}{Live}\mdot\href{https://github.com/mehreenhimani/bankflow-ai}{GitHub}}{Jun 2026}
 \begin{itemize}
-  \item 8-tool multi-agent system with a 3-layer guardrail pipeline and evaluation suite; EU AI Act, AML and DORA
-        compliance built into agent reasoning and audit trail.
+  \item Multi-agent orchestration with 8 tools, 3-layer guardrail pipeline and LLM-as-judge evaluation suite; EU AI Act, AML
+        and DORA compliance built into agent reasoning, tool use and audit trail.
 \end{itemize}
 \gap
 
-\project{ComplianceIQ}{AML Alert Triage System}{2026 \sep \href{https://complianceiq-aml-triage.vercel.app/dashboard}{Demo} \sep \href{https://github.com/mehreenhimani}{GitHub}}
-{React, TypeScript, Tailwind, Vercel}
+\project{PayClear AI --- Zero-Trust Payment Integrity Engine}{\href{https://github.com/mehreenhimani/payclear-AI}{GitHub}}{Jun 2026}
 \begin{itemize}
-  \item Explainable risk scoring across 6 alert categories with human-in-the-loop review (EU AI Act Art.~13); simulated
-        false positives reduced from 45\% to 22\% and resolution time halved.
+  \item Pre-execution invoice interception, IBAN verification and visual spoofing detection with composite Trust Index scoring.
 \end{itemize}
 \gap
 
-\project{RegCopilot}{EU Regulatory RAG Copilot}{2026 \sep \href{https://regcopilot.lovable.app/}{Demo} \sep \href{https://github.com/mehreenhimani}{GitHub}}
-{Claude API, Supabase pgvector, React, TypeScript}
+\project{OnboardIQ --- Explainable KYC Onboarding Triage}{\href{https://kyc-onboarding-sigma.vercel.app/}{Live}}{Jun 2026}
 \begin{itemize}
-  \item Retrieval over EU AI Act, DORA, AMLD6 and GDPR (33K+ chunks) with 82\% accuracy on a golden test set, zero
-        cross-regulation hallucinations, citation-grounded answers and an immutable audit trail.
+  \item AI-driven risk triage routing applicants to auto-approve, fast-track or manual review, with full decision traceability.
 \end{itemize}
 \gap
 
-\project{PulseAI}{Multi-Agent Product Intelligence}{2026 \sep \href{https://pulseai-kohl.vercel.app/}{Demo} \sep \href{https://github.com/mehreenhimani}{GitHub}}
-{Claude API, HuggingFace, n8n, Supabase}
+\project{PayGuard AI --- Real-Time Payments Fraud Detection}{\href{https://payguard-ai-sigma.vercel.app/}{Live}}{Jun 2026}
 \begin{itemize}
-  \item Four-agent pipeline converting feedback from 5 sources into RICE-scored PRDs, reducing manual analysis by 80\%.
+  \item Real-time fraud scoring with AI-generated explanations, analyst review queue and EU AI Act compliance scoring (87/100).
 \end{itemize}
 \gap
 
-{\bfseries Further products:} PayGuard AI (real-time payments fraud detection), OnboardIQ (explainable KYC onboarding
-triage) and PayClear AI (zero-trust payment integrity engine).
+\project{PulseAI --- Multi-Agent Product Intelligence System}{\href{https://pulseai-kohl.vercel.app/}{Live}\mdot\href{https://github.com/mehreenhimani/pulseai}{GitHub}}{Apr 2026}
+\begin{itemize}
+  \item 4-agent pipeline (Feedback Harvester, Signal Analyst, Priority Engine, PRD Writer) using n8n and Claude API, with
+        HuggingFace NLP for sentiment and theme classification; reduces manual feedback analysis by 80\%.
+\end{itemize}
+\gap
+
+\project{ComplianceIQ --- AI Compliance Alert Triage System}{\href{https://complianceiq-aml-triage.vercel.app/}{Live}\mdot\href{https://github.com/mehreenhimani/complianceiq-aml-triage}{GitHub}}{Mar 2026}
+\begin{itemize}
+  \item AI risk scoring across 6 alert categories with confidence scores and plain-language reasoning per alert.
+  \item Reduced simulated false-positive rate from 45\% to 22\% and average resolution time from 8.4h to 4.2h.
+\end{itemize}
+\gap
+
+\project{RegCopilot --- RAG Copilot for EU Regulatory Compliance}{\href{https://regcopilot.lovable.app/}{Live}\mdot\href{https://github.com/mehreenhimani/regcopilot}{GitHub}}{Feb 2026}
+\begin{itemize}
+  \item RAG pipeline over 33,536 regulation chunks (EU AI Act, DORA, AMLD6, GDPR) with Supabase pgvector; 82\% accuracy on
+        golden questions, citation-grounded answers, immutable audit trail and human review flagging.
+\end{itemize}
 
 % ---------- Skills ----------
-\section{Expertise}
-\renewcommand{\arraystretch}{1.1}
-\begin{tabularx}{\textwidth}{@{}>{\bfseries}p{36mm}>{\raggedright\arraybackslash}X@{}}
-  Product Leadership & Product vision and strategy, roadmap, P\&L, backlog governance, OKRs and KPIs, RICE, stakeholder management, go-to-market \\
-  AI \& Data         & GenAI, LLMs, RAG, multi-agent orchestration, prompt and context engineering, LLM evaluation, human-in-the-loop design, AI governance \\
-  Banking \& Risk    & Basel III/IV, ECB FINREP, IFRS 9, credit lifecycle, stress testing, capital calculation, AML/CFT (NICE Actimize), KYC, post-trade \\
-  Regulation         & EU AI Act, DORA, GDPR, AMLD6, audit documentation, risk governance \\
-  Delivery           & Scrum, Kanban, SAFe PI Planning, BDD, shift-left testing, CI/CD, A/B testing \\
-  Tools              & Claude API, HuggingFace, n8n, Supabase, Cursor, Lovable, Python, SQL, PostgreSQL, Tableau, Qlik \\
-  Languages          & English (C1), German (B1) \\
+\section{Skills}
+\renewcommand{\arraystretch}{1.08}
+\begin{tabularx}{\textwidth}{@{}>{\bfseries}p{1.68in}>{\raggedright\arraybackslash}X@{}}
+  Product Leadership   & Product vision, roadmap, P\&L, backlog governance, OKRs, KPIs, RICE, release management \\
+  AI \& Data           & GenAI, LLMs, RAG, multi-agent systems, prompt \& context engineering, AI evaluation \\
+  Credit Risk \& Banking & Basel III/IV, ECB FINREP, IFRS 9, stress testing, AML/CFT (NICE Actimize), KYC, post-trade \\
+  Regulatory \& Compliance & EU AI Act, DORA, GDPR, AMLD6, audit documentation, risk governance \\
+  Agile \& Delivery    & Scrum, Kanban, SAFe PI Planning, BDD, shift-left testing, CI/CD, A/B testing \\
+  Technology           & Claude API, HuggingFace, n8n, Supabase (pgvector), Cursor, Lovable, Python, SQL, PostgreSQL \\
+  Languages            & English (C1), German (B1) \sep Permanent Residency, Germany \\
 \end{tabularx}
 
-% ---------- Education & Certifications ----------
-\section{Education \& Certifications}
-{\bfseries M.Sc. Information Technology}, Vellore Institute of Technology, Pune \hfill 2013 -- 2017\\[2pt]
-{\bfseries AI Agents Certified Product Manager}, Product School \hfill 2026\\[2pt]
-{\bfseries LLM Foundations Certified Product Manager}, Product School \hfill 2026\\[2pt]
-{\bfseries Certified Scrum Product Owner (CSPO)}, Scrum Alliance \hfill 2022
+% ---------- Education ----------
+\section{Education}
+{\fontsize{11}{13}\selectfont\bfseries Vellore Institute of Technology}, Pune, India \hfill {\itshape 2013 -- 2017}\\
+{\itshape M.Sc. in Information Technology}
+
+% ---------- Certifications ----------
+\section{Certifications}
+{\bfseries AI Agents Certified Product Manager}, Product School \hfill {\itshape Feb 2026}\\[1pt]
+{\bfseries LLM Foundations Certified Product Manager}, Product School \hfill {\itshape Feb 2026}\\[1pt]
+{\bfseries Certified Scrum Product Owner® (CSPO®)}, Scrum Alliance \hfill {\itshape Dec 2022}
 
 \end{document}
