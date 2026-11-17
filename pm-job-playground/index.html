@@ -97,7 +97,7 @@ footer{font-size:.78rem;color:var(--muted);max-width:80ch}
   </section>
 
   <section class="daily" aria-labelledby="dh">
-    <div class="dhead"><h2 id="dh">Latest PM openings</h2><span class="eyebrow" id="dupd">Loading…</span></div>
+    <div class="dhead"><h2 id="dh">Top 20 PM openings for you</h2><span class="eyebrow" id="dupd">Loading…</span></div>
     <p class="note" id="dnote"></p>
     <div class="tbl"><table>
       <thead><tr><th>#</th><th>Company</th><th>Role</th><th>Where</th><th>Mode</th><th>Posted</th><th></th></tr></thead>
@@ -195,7 +195,7 @@ fetch("daily.json",{cache:"no-store"}).then(r=>r.ok?r.json():Promise.reject()).t
   const mc={remote:"m5",hybrid:"m3",onsite:"m1"};
   $("dbody").innerHTML=(d.items||[]).slice(0,20).map((x,i)=>`<tr>
     <td class="n">${i+1}</td>
-    <td><b>${esc(x.company)}</b>${x.target?' <span class="chip m3">On your 30</span>':""}${x.travel_h>0&&x.travel_h<=1?' <span class="chip local">Near Stuttgart</span>':""}</td>
+    <td><b>${esc(x.company)}</b>${x.new?' <span class="chip m4">New</span>':""}${x.target?' <span class="chip m3">On your 30</span>':""}${x.travel_h>0&&x.travel_h<=1?' <span class="chip local">Near Stuttgart</span>':""}</td>
     <td>${esc(x.role)}</td><td>${esc(x.location)}</td>
     <td><span class="chip ${mc[x.mode]||""}">${esc(x.mode)}</span></td>
     <td class="d">${esc(x.posted)}</td>
