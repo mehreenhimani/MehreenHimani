@@ -1,0 +1,174 @@
+<title>PM Hunt Germany</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: control rail on top, summary strip, then a scannable grid of company cards ranked by fit */
+:root{
+  --bg:#f4f6f8; --surface:#ffffff; --fg:#14202b; --muted:#5b6b7a; --line:#dde3ea;
+  --accent:#0f6e74; --accent-soft:#dff1f1;
+  --good:#1e7a46; --good-soft:#e2f4e9; --warn:#9a6200; --warn-soft:#fbf0d9; --bad:#a33a2c; --bad-soft:#f8e3df;
+  --f-display:"Space Grotesk",system-ui,sans-serif; --f-body:"Inter",system-ui,sans-serif; --f-mono:"JetBrains Mono",ui-monospace,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0e151b; --surface:#16212a; --fg:#e6edf3; --muted:#93a4b3; --line:#26343f;
+  --accent:#4cc3c9; --accent-soft:#163437;
+  --good:#5fd08f; --good-soft:#14301f; --warn:#f0b54a; --warn-soft:#33270f; --bad:#f08a7a; --bad-soft:#3a1d18; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0e151b; --surface:#16212a; --fg:#e6edf3; --muted:#93a4b3; --line:#26343f;
+  --accent:#4cc3c9; --accent-soft:#163437;
+  --good:#5fd08f; --good-soft:#14301f; --warn:#f0b54a; --warn-soft:#33270f; --bad:#f08a7a; --bad-soft:#3a1d18; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--f-body);line-height:1.5}
+.wrap{max-width:1180px;margin:0 auto;padding-block:28px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;gap:20px}
+header h1{font-family:var(--f-display);font-size:clamp(1.6rem,3.5vw,2.2rem);margin:0;text-wrap:balance;letter-spacing:-.01em}
+header p{margin:6px 0 0;color:var(--muted);max-width:70ch}
+.eyebrow{font-family:var(--f-mono);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
+.controls{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px}
+.controls label{display:grid;gap:4px;font-size:.78rem;color:var(--muted);font-weight:500}
+select,input[type=search],textarea{font:inherit;font-size:.9rem;color:var(--fg);background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:7px 9px;width:100%}
+input[type=range]{width:100%;accent-color:var(--accent)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.weights{font-family:var(--f-mono);font-size:.72rem;color:var(--fg)}
+.stats{display:flex;flex-wrap:wrap;gap:8px}
+.stat{display:flex;gap:6px;align-items:baseline;padding:6px 12px;border-radius:999px;background:var(--surface);border:1px solid var(--line);font-size:.82rem}
+.stat b{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.quick{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:.85rem;color:var(--muted)}
+.btn{display:inline-flex;align-items:center;gap:6px;font:inherit;font-size:.82rem;font-weight:500;text-decoration:none;color:var(--accent);background:var(--accent-soft);border:1px solid transparent;border-radius:6px;padding:6px 10px;cursor:pointer}
+.btn:hover{border-color:var(--accent)}
+.btn.ghost{background:transparent;border-color:var(--line);color:var(--fg)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px}
+@media (max-width:420px){.grid{grid-template-columns:1fr}}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px;display:grid;gap:10px;align-content:start;min-width:0}
+.top{display:flex;justify-content:space-between;gap:10px;align-items:start}
+.top h2{font-family:var(--f-display);font-size:1.12rem;margin:0}
+.rank{font-family:var(--f-mono);color:var(--muted);font-size:.75rem;margin-right:6px}
+.score{font-family:var(--f-mono);font-weight:600;font-size:1.05rem;font-variant-numeric:tabular-nums;text-align:right;line-height:1.1}
+.score small{display:block;font-size:.62rem;font-weight:400;color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-size:.72rem;font-weight:500;padding:2px 8px;border-radius:999px;background:var(--bg);border:1px solid var(--line);color:var(--muted)}
+.chip.m5,.chip.m4{background:var(--good-soft);color:var(--good);border-color:transparent}
+.chip.m3{background:var(--accent-soft);color:var(--accent);border-color:transparent}
+.chip.m2{background:var(--warn-soft);color:var(--warn);border-color:transparent}
+.chip.m1{background:var(--bad-soft);color:var(--bad);border-color:transparent}
+.chip.local{background:var(--good-soft);color:var(--good);border-color:transparent}
+dl{display:grid;grid-template-columns:auto 1fr;gap:3px 10px;margin:0;font-size:.82rem}
+dt{color:var(--muted)} dd{margin:0;min-width:0}
+.note{font-size:.8rem;color:var(--muted);margin:0}
+.links{display:flex;flex-wrap:wrap;gap:6px}
+.track{display:grid;grid-template-columns:1fr;gap:6px;border-top:1px dashed var(--line);padding-top:10px}
+.track select.s-applied{border-color:var(--accent)} .track select.s-interview{border-color:var(--warn)} .track select.s-offer{border-color:var(--good)} .track select.s-rejected{border-color:var(--bad)}
+textarea{min-height:34px;resize:vertical;font-size:.8rem}
+.empty{padding:28px;text-align:center;color:var(--muted);background:var(--surface);border:1px dashed var(--line);border-radius:10px}
+footer{font-size:.78rem;color:var(--muted);max-width:80ch}
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Base: Stuttgart · Role: Product Manager · Germany · Nov 2026</div>
+    <h1>PM Hunt Germany</h1>
+    <p>30 big-tech and top German tech employers that hire Product Managers in Germany, ranked for someone in Stuttgart who wants mostly remote work. Each card opens a live, pre-filtered job search, so you always see today's openings.</p>
+  </header>
+
+  <section class="controls" aria-label="Filters">
+    <label for="q">Search company or city<input id="q" type="search" placeholder="e.g. Munich, SAP"></label>
+    <label for="mode">Minimum remote flexibility
+      <select id="mode">
+        <option value="1">Any (incl. on-site)</option>
+        <option value="2">Hybrid or better</option>
+        <option value="3" selected>Hybrid with remote days</option>
+        <option value="4">Remote-friendly</option>
+        <option value="5">Fully remote only</option>
+      </select></label>
+    <label for="cat">Company type
+      <select id="cat"><option value="">All</option><option>Big Tech (US)</option><option>German Tech &amp; Industry</option><option>Scale-up</option></select></label>
+    <label for="status">Your status
+      <select id="status"><option value="">All</option><option value="none">Not started</option><option value="saved">Saved</option><option value="applied">Applied</option><option value="interview">Interviewing</option><option value="offer">Offer</option><option value="rejected">Rejected</option></select></label>
+    <label for="w">Ranking: remote vs. near Stuttgart <span class="weights" id="wl"></span><input id="w" type="range" min="0" max="100" value="70"></label>
+  </section>
+
+  <div class="stats" id="stats"></div>
+  <div class="quick">
+    Search all at once:
+    <a class="btn" target="_blank" rel="noopener" href="https://www.linkedin.com/jobs/search/?keywords=Product%20Manager&location=Germany&f_WT=2">LinkedIn · Remote · Germany</a>
+    <a class="btn" target="_blank" rel="noopener" href="https://www.linkedin.com/jobs/search/?keywords=Product%20Manager&location=Stuttgart%2C%20Baden-W%C3%BCrttemberg%2C%20Germany&distance=50&f_WT=3%2C2">LinkedIn · Hybrid/Remote · Stuttgart 50 km</a>
+    <a class="btn" target="_blank" rel="noopener" href="https://www.stepstone.de/jobs/product-manager/in-stuttgart?radius=50&wfh=1">StepStone · Stuttgart + home office</a>
+  </div>
+
+  <main class="grid" id="grid" aria-live="polite"></main>
+
+  <footer>Work-mode ratings reflect each company's published policy as of late 2026 and vary by team. Always confirm on the posting itself. Remote 5 = fully remote in Germany, 4 = remote-friendly or very flexible, 3 = hybrid with 2–3 home days, 2 = hybrid with mostly office days, 1 = on-site. Proximity uses door-to-door train time from Stuttgart Hbf. Your statuses and notes are saved in this browser only.</footer>
+</div>
+
+<script>
+const C=[
+ // name, cat, hubs, remote(1-5), mode text, travel hrs from Stuttgart, careers url, note
+ ["Google","Big Tech (US)","Munich, Berlin, Hamburg",2,"Hybrid, 3 office days",2.2,"https://www.google.com/about/careers/applications/jobs/results/?q=product%20manager&location=Germany","Munich is a large engineering site (Maps, Chrome, privacy, Cloud). Fully remote PM roles are rare."],
+ ["Amazon / AWS","Big Tech (US)","Berlin, Munich, Dresden",1,"Office 5 days",2.2,"https://www.amazon.jobs/en/search?base_query=product+manager&loc_query=Germany","Many PM-T and Sr PM roles in Berlin (Alexa, Prime Video, AWS). Return-to-office policy is strict."],
+ ["Microsoft","Big Tech (US)","Munich, Berlin, Aachen",4,"Flexible, up to 50% home; some remote",2.2,"https://jobs.careers.microsoft.com/global/en/search?q=product%20manager&lc=Germany","Flexible-work policy. Some customer-facing and Azure PM roles are listed as remote in Germany."],
+ ["Apple","Big Tech (US)","Munich",2,"Hybrid, 3 office days",2.2,"https://jobs.apple.com/en-us/search?search=product%20manager&location=germany-DEUC","Munich silicon and wireless site. PM titles are often 'Engineering Program Manager' or 'Product Design'."],
+ ["Salesforce","Big Tech (US)","Munich, Berlin, Frankfurt",3,"Hybrid (Flex), remote for some roles",2.2,"https://careers.salesforce.com/en/jobs/?search=product+manager&country=Germany","Mostly product-adjacent roles (Product Specialist, Solution PM) plus some core PM roles."],
+ ["Oracle","Big Tech (US)","Munich, Berlin, Potsdam",4,"Remote-friendly in Germany",2.2,"https://careers.oracle.com/jobs/#en/sites/jobsearch/requisitions?keyword=product%20manager&location=Germany","OCI and Health product teams often hire remotely within Germany."],
+ ["Adobe","Big Tech (US)","Munich, Hamburg",3,"Hybrid, flexible",2.2,"https://careers.adobe.com/us/en/search-results?keywords=product%20manager%20germany","Munich and Hamburg sites (Substance 3D, Experience Cloud)."],
+ ["IBM","Big Tech (US)","Ehningen, Böblingen, Munich",3,"Hybrid",0.5,"https://www.ibm.com/careers/search?q=product%20manager%20germany","German HQ and Böblingen R&D lab are about 25 km from Stuttgart."],
+ ["Cisco","Big Tech (US)","Munich, Berlin, Eschborn",4,"Hybrid, remote-friendly",2.2,"https://jobs.cisco.com/jobs/SearchJobs/product%20manager%20germany","Security and collaboration PM roles. Flexible-work culture."],
+ ["Snowflake","Big Tech (US)","Berlin, Munich",2,"Hybrid",5.0,"https://careers.snowflake.com/us/en/search-results?keywords=product%20manager","Berlin engineering centre is growing. Look for Product Manager and TPM roles."],
+ ["Databricks","Big Tech (US)","Berlin, Munich",2,"Hybrid",5.0,"https://www.databricks.com/company/careers/open-positions?department=Product","Berlin R&D site. Product roles appear under the Product department filter."],
+ ["Stripe","Big Tech (US)","Berlin",4,"Hybrid; remote in Germany for some roles",5.0,"https://stripe.com/jobs/search?query=product%20manager","Some roles are listed as 'Remote in Germany'. Check each posting."],
+ ["Spotify","Big Tech (US)","Berlin",5,"Work From Anywhere (remote in Germany)",5.0,"https://www.lifeatspotify.com/jobs?c=product","Work From Anywhere policy: if the role is attached to a German office, you can usually work from Stuttgart."],
+ ["GitLab","Big Tech (US)","Fully remote",5,"All-remote",0,"https://about.gitlab.com/jobs/all-jobs/","All-remote company that hires in Germany. Product roles are listed under 'Product'."],
+ ["SAP","German Tech & Industry","Walldorf, St. Leon-Rot, Berlin, Munich, Markdorf",4,"Flex Work; very flexible",1.2,"https://jobs.sap.com/search/?q=product+manager&locationsearch=Germany","Germany's largest PM employer. Walldorf is about 1 hour away, and many teams rarely require office days."],
+ ["Siemens","German Tech & Industry","Munich, Erlangen, Berlin, Karlsruhe",3,"Mobile working 2–3 days/week",2.2,"https://jobs.siemens.com/careers?query=product%20manager&location=Germany","Digital Industries and Siemens Healthineers. Karlsruhe is close to Stuttgart."],
+ ["Bosch","German Tech & Industry","Stuttgart, Renningen, Ludwigsburg",3,"Hybrid",0.5,"https://jobs.bosch.com/en/?search=product%20manager&country=de","HQ near Stuttgart. Bosch Digital, Bosch.IO and mobility software hire digital PMs."],
+ ["Mercedes-Benz","German Tech & Industry","Stuttgart, Sindelfingen, Berlin",3,"Hybrid",0.3,"https://jobs.mercedes-benz.com/en?searchTerm=product%20manager","MB.OS, Mercedes-Benz Tech Innovation and Mercedes me digital products are all local to you."],
+ ["Porsche / Porsche Digital","German Tech & Industry","Stuttgart, Ludwigsburg, Berlin",3,"Hybrid",0.4,"https://www.porsche.com/germany/aboutporsche/jobs/","Porsche Digital (Ludwigsburg) hires digital product owners and PMs."],
+ ["Zalando","Scale-up","Berlin, Dortmund",3,"Hybrid; some remote within Germany",5.0,"https://jobs.zalando.com/en/jobs?search=product+manager","Large PM organisation. Some teams allow working mostly from elsewhere in Germany."],
+ ["Delivery Hero","Scale-up","Berlin",2,"Hybrid",5.0,"https://careers.deliveryhero.com/global/en/search-results?keywords=product%20manager","Global HQ in Berlin. Many PM roles in quick commerce and ads."],
+ ["N26","Scale-up","Berlin",3,"Hybrid; remote options in Germany",5.0,"https://n26.com/en/careers/departments/product","Fintech with a dedicated product department page."],
+ ["Celonis","Scale-up","Munich",2,"Hybrid",2.2,"https://careers.celonis.com/join-us/open-positions","Munich HQ, process-mining leader. Strong AI and product culture."],
+ ["Personio","Scale-up","Munich, Berlin",2,"Hybrid",2.2,"https://www.personio.com/about-personio/careers/","HR SaaS company with many B2B PM roles in Munich."],
+ ["DeepL","Scale-up","Cologne, Berlin",4,"Hybrid or remote within Germany",2.5,"https://jobs.ashbyhq.com/DeepL","AI language company. Roles are often open to remote work across Germany."],
+ ["HelloFresh","Scale-up","Berlin",2,"Hybrid",5.0,"https://careers.hellofresh.com/global/en/search-results?keywords=product%20manager","Berlin HQ. Tech and product teams cover consumer apps and logistics."],
+ ["Trade Republic","Scale-up","Berlin",1,"Mostly office-based",5.0,"https://traderepublic.com/careers","Fast-growing broker. Office-first culture."],
+ ["Miro","Scale-up","Berlin, Amsterdam",3,"Hybrid, flexible",5.0,"https://miro.com/careers/open-positions/","Collaboration SaaS company with a sizeable Berlin product team."],
+ ["Contentful","Scale-up","Berlin",4,"Remote within Germany possible",5.0,"https://www.contentful.com/careers/","Headless CMS company. Many roles allow remote work in Germany."],
+ ["Wolt (DoorDash)","Scale-up","Berlin",2,"Hybrid",5.0,"https://careers.wolt.com/en/jobs?search=product","DoorDash's European arm. Berlin product hub."]
+];
+const MODE={1:"On-site",2:"Hybrid · office-heavy",3:"Hybrid · home days",4:"Remote-friendly",5:"Fully remote"};
+const ST={none:"Not started",saved:"Saved",applied:"Applied",interview:"Interviewing",offer:"Offer",rejected:"Rejected"};
+const KEY="pmhunt-v1";
+let store={}; try{store=JSON.parse(localStorage.getItem(KEY))||{}}catch(e){}
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(store))}catch(e){}};
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const li=n=>"https://www.linkedin.com/jobs/search/?keywords="+encodeURIComponent('"Product Manager" '+n.split(/[\/(]/)[0].trim())+"&location=Germany&f_WT=2%2C3";
+const prox=h=>Math.max(0,1-h/5); // 0h=1, 5h+=0
+function score(c,w){const r=(c[3]-1)/4;const p=c[3]===5?1:prox(c[5]);return Math.round(100*(w*r+(1-w)*p))}
+function render(){
+  const w=$("w").value/100; $("wl").textContent=`${Math.round(w*100)}% remote / ${100-Math.round(w*100)}% nearby`;
+  const q=$("q").value.toLowerCase(), m=+$("mode").value, cat=$("cat").value, st=$("status").value;
+  const rows=C.map(c=>({c,s:score(c,w),t:store[c[0]]||{}})).sort((a,b)=>b.s-a.s);
+  const vis=rows.filter(({c,t})=>c[3]>=m&&(!cat||c[1]===cat)&&(!q||(c[0]+" "+c[2]).toLowerCase().includes(q))&&(!st||(t.s||"none")===st));
+  const cnt=k=>C.filter(c=>((store[c[0]]||{}).s||"none")===k).length;
+  $("stats").innerHTML=`<span class="stat">Showing <b>${vis.length}</b> of 30</span><span class="stat">Remote-friendly or better <b>${C.filter(c=>c[3]>=4).length}</b></span><span class="stat">Within 1 h of Stuttgart <b>${C.filter(c=>c[5]>0&&c[5]<=1).length}</b></span>`+["saved","applied","interview","offer"].map(k=>`<span class="stat">${ST[k]} <b>${cnt(k)}</b></span>`).join("");
+  $("grid").innerHTML=vis.length?vis.map(({c,s,t},i)=>{
+    const id="c"+C.indexOf(c), local=c[5]>0&&c[5]<=1;
+    return `<article class="card">
+      <div class="top"><h2><span class="rank">#${rows.findIndex(r=>r.c===c)+1}</span>${esc(c[0])}</h2><div class="score">${s}<small>fit</small></div></div>
+      <div class="chips"><span class="chip m${c[3]}">${MODE[c[3]]}</span>${local?'<span class="chip local">Near Stuttgart</span>':""}<span class="chip">${esc(c[1])}</span></div>
+      <dl><dt>PM hubs</dt><dd>${esc(c[2])}</dd><dt>Policy</dt><dd>${esc(c[4])}</dd><dt>By train</dt><dd>${c[5]===0?"Not needed":"≈ "+c[5].toFixed(1)+" h"}</dd></dl>
+      <p class="note">${esc(c[7])}</p>
+      <div class="links"><a class="btn" target="_blank" rel="noopener" href="${c[6]}">Open PM jobs ↗</a><a class="btn ghost" target="_blank" rel="noopener" href="${li(c[0])}">LinkedIn remote/hybrid ↗</a></div>
+      <div class="track">
+        <label class="sr" for="${id}s" hidden>Status</label>
+        <select id="${id}s" data-k="${esc(c[0])}" class="s-${t.s||"none"}">${Object.entries(ST).map(([k,v])=>`<option value="${k}"${(t.s||"none")===k?" selected":""}>${v}</option>`).join("")}</select>
+        <textarea id="${id}n" data-k="${esc(c[0])}" placeholder="Notes: role title, referral, next step…">${esc(t.n||"")}</textarea>
+      </div></article>`}).join(""):`<div class="empty">No companies match these filters. Try lowering the remote flexibility filter.</div>`;
+}
+document.addEventListener("input",e=>{
+  const k=e.target.dataset&&e.target.dataset.k;
+  if(k){store[k]=store[k]||{}; if(e.target.tagName==="SELECT"){store[k].s=e.target.value;save();render()} else {store[k].n=e.target.value;save()} return}
+  if(["q","mode","cat","status","w"].includes(e.target.id))render();
+});
+render();
+</script>
