@@ -105,6 +105,15 @@ footer{font-size:.78rem;color:var(--muted);max-width:80ch}
     </table></div>
   </section>
 
+  <section class="daily" aria-labelledby="rh">
+    <div class="dhead"><h2 id="rh">All remote PM roles in Germany</h2><span class="eyebrow" id="rcount"></span></div>
+    <p class="note">Every remote Product Manager role at an established company that is open to people in Germany, with no limit on how many. Your target companies come first, then the newest posts.</p>
+    <div class="tbl"><table>
+      <thead><tr><th>#</th><th>Company</th><th>Role</th><th>Where</th><th>Mode</th><th>Posted</th><th></th></tr></thead>
+      <tbody id="rbody"><tr><td colspan="7" class="note">Remote roles appear here after each morning's run.</td></tr></tbody>
+    </table></div>
+  </section>
+
   <div class="stats" id="stats"></div>
   <div class="quick">
     Search all at once:
@@ -193,12 +202,16 @@ fetch("daily.json",{cache:"no-store"}).then(r=>r.ok?r.json():Promise.reject()).t
   $("dupd").textContent="Updated "+d.updated;
   $("dnote").textContent=d.note||"";
   const mc={remote:"m5",hybrid:"m3",onsite:"m1"};
-  $("dbody").innerHTML=(d.items||[]).slice(0,20).map((x,i)=>`<tr>
+  const row=(x,i)=>`<tr>
     <td class="n">${i+1}</td>
     <td><b>${esc(x.company)}</b>${x.new?' <span class="chip m4">New</span>':""}${x.target?' <span class="chip m3">On your 30</span>':""}${x.travel_h>0&&x.travel_h<=1?' <span class="chip local">Near Stuttgart</span>':""}</td>
     <td>${esc(x.role)}</td><td>${esc(x.location)}</td>
-    <td><span class="chip ${mc[x.mode]||""}">${esc(x.mode)}</span></td>
+    <td><span class="chip ${mc[x.mode]||(String(x.mode).startsWith("hybrid")?"m3":"")}">${esc(x.mode)}</span></td>
     <td class="d">${esc(x.posted)}</td>
-    <td><a target="_blank" rel="noopener" href="${esc(x.url)}">View ↗</a></td></tr>`).join("")||'<tr><td colspan="7" class="note">No new openings found in the last run.</td></tr>';
+    <td><a target="_blank" rel="noopener" href="${esc(x.url)}">View ↗</a></td></tr>`;
+  $("dbody").innerHTML=(d.items||[]).slice(0,20).map(row).join("")||'<tr><td colspan="7" class="note">No openings found in the last run.</td></tr>';
+  const ra=d.remote_all||[];
+  $("rcount").textContent=ra.length+" roles";
+  $("rbody").innerHTML=ra.map(row).join("")||'<tr><td colspan="7" class="note">No remote roles found in the last run.</td></tr>';
 }).catch(()=>{$("dupd").textContent="No daily list yet"});
 </script>

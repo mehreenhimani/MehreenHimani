@@ -59,6 +59,7 @@ BOARDS = [
     ("Supabase", "ashby", "supabase", False, "remote"),
     ("PostHog", "ashby", "posthog", False, "remote"),
     ("ClickHouse", "ashby", "clickhouse", False, "remote"),
+    ("JetBrains", "gh", "jetbrains", False, "hybrid"),
     ("Amazon", "amazon", "", True, "onsite"),
 ]
 
@@ -69,6 +70,10 @@ GERMANY = re.compile(r"germany|deutschland|\bDE\b|\bDEU\b|berlin|m[üu]nchen|mun
 EUROPE_REMOTE = re.compile(r"emea|europe|\beu\b|european", re.I)
 TRAVEL = [(r"walldorf|karlsruhe|heidelberg|mannheim|ulm", 1.2), (r"frankfurt|m[üu]nchen|munich|n[üu]rnberg|nuremberg|augsburg|darmstadt|erlangen|ingolstadt|würzburg", 2.2),
           (r"k[öo]ln|cologne|bonn|d[üu]sseldorf|aachen|essen|dortmund", 2.8), (r"berlin|hamburg|leipzig|dresden|hannover|potsdam|jena|wolfsburg", 5.0)]
+
+# Early-stage startups Mehreen asked to leave out ("top companies, not the startup kind")
+STARTUPS = {"n8n", "Cosuno", "Buena", "Langfuse", "Parloa", "Enpal", "Grover", "Raisin", "Bitpanda", "Linear",
+            "Supabase", "PostHog", "Ramp", "ClickHouse", "Staffbase", "commercetools", "GetYourGuide", "ElevenLabs"}
 
 UA = {"User-Agent": "Mozilla/5.0 (job-search helper)", "Accept": "application/json"}
 
@@ -166,7 +171,7 @@ def main():
     ap.add_argument("--top", type=int, default=20)
     a = ap.parse_args()
     with ThreadPoolExecutor(8) as ex:
-        results = list(ex.map(fetch, BOARDS))
+        results = list(ex.map(fetch, [b for b in BOARDS if b[0] not in STARTUPS]))
     allrows, seen = [], set()
     for name, rows in results:
         for r in rows:
@@ -179,18 +184,28 @@ def main():
         per[r["company"]] = per.get(r["company"], 0) + 1
         top.append(r)
         if len(top) == a.top: break
-    prev = set()
+    prev, prev_remote = set(), set()
     if a.prev:
-        try: prev = {x["url"] for x in json.load(open(a.prev))["items"]}
+        try:
+            pj = json.load(open(a.prev))
+            prev = {x["url"] for x in pj["items"]}
+            prev_remote = {x["url"] for x in pj.get("remote_all", [])} | prev
         except Exception: pass
     for r in top:
         r["new"] = bool(prev) and r["url"] not in prev
-    checked = sum(1 for _, rows in results)
+    def is_remote(r):
+        return r["mode"] == "remote"
+    remote_all = sorted([dict(r) for r in allrows if is_remote(r)],
+                        key=lambda x: (not x["target"], -int(x["posted"].replace("-", "")) if x["posted"][:4].isdigit() else 0))
+    for r in remote_all:
+        r["new"] = bool(prev) and r["url"] not in prev_remote
+    checked = len(results)
     data = {"updated": dt.date.today().isoformat(),
-            "note": f"Pulled from {checked} company job boards; {len(allrows)} PM roles qualified (Stuttgart area, or remote/hybrid in Germany). Every link opens the posting itself. 'hybrid (company policy)' means the ad does not say, so the company's usual office policy is assumed.",
-            "total_qualified": len(allrows), "items": top}
+            "note": f"Pulled from {checked} established companies' job boards; {len(allrows)} PM roles qualified (Stuttgart area, or remote/hybrid in Germany). Every link opens the posting itself. 'hybrid (company policy)' means the ad does not say, so the company's usual office policy is assumed.",
+            "total_qualified": len(allrows), "items": top, "remote_all": remote_all}
     json.dump(data, open(a.out, "w"), ensure_ascii=False, indent=1)
-    print(f"{len(allrows)} qualified, wrote top {len(top)} to {a.out}")
+    print(f"{len(allrows)} qualified, wrote top {len(top)} + {len(remote_all)} remote roles to {a.out}")
+    for r in remote_all: print(f"   remote: {r['company']:<16} {r['location'][:40]:<40} {r['posted']}  {r['role'][:60]}")
     for i, r in enumerate(top, 1):
         print(f"{i:2}. {r['company']:<16} {r['mode']:<24} {r['location'][:40]:<40} {r['posted']}  {r['role'][:60]}")
 
