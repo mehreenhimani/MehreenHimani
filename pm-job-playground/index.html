@@ -60,6 +60,15 @@ dt{color:var(--muted)} dd{margin:0;min-width:0}
 .track select.s-applied{border-color:var(--accent)} .track select.s-interview{border-color:var(--warn)} .track select.s-offer{border-color:var(--good)} .track select.s-rejected{border-color:var(--bad)}
 textarea{min-height:34px;resize:vertical;font-size:.8rem}
 .empty{padding:28px;text-align:center;color:var(--muted);background:var(--surface);border:1px dashed var(--line);border-radius:10px}
+.daily{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px;display:grid;gap:8px;min-width:0}
+.dhead{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:8px}
+.dhead h2{font-family:var(--f-display);font-size:1.2rem;margin:0}
+.tbl{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:.84rem;min-width:640px}
+th{text-align:left;font-size:.7rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:500;padding:6px 8px;border-bottom:1px solid var(--line)}
+td{padding:7px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+td.n,td.d{font-family:var(--f-mono);font-variant-numeric:tabular-nums;color:var(--muted);white-space:nowrap}
+td a{color:var(--accent);font-weight:500;white-space:nowrap}
 footer{font-size:.78rem;color:var(--muted);max-width:80ch}
 </style>
 
@@ -85,6 +94,15 @@ footer{font-size:.78rem;color:var(--muted);max-width:80ch}
     <label for="status">Your status
       <select id="status"><option value="">All</option><option value="none">Not started</option><option value="saved">Saved</option><option value="applied">Applied</option><option value="interview">Interviewing</option><option value="offer">Offer</option><option value="rejected">Rejected</option></select></label>
     <label for="w">Ranking: remote vs. near Stuttgart <span class="weights" id="wl"></span><input id="w" type="range" min="0" max="100" value="70"></label>
+  </section>
+
+  <section class="daily" aria-labelledby="dh">
+    <div class="dhead"><h2 id="dh">Latest PM openings</h2><span class="eyebrow" id="dupd">Loading…</span></div>
+    <p class="note" id="dnote"></p>
+    <div class="tbl"><table>
+      <thead><tr><th>#</th><th>Company</th><th>Role</th><th>Where</th><th>Mode</th><th>Posted</th><th></th></tr></thead>
+      <tbody id="dbody"><tr><td colspan="7" class="note">The daily list appears here after each morning's run.</td></tr></tbody>
+    </table></div>
   </section>
 
   <div class="stats" id="stats"></div>
@@ -171,4 +189,16 @@ document.addEventListener("input",e=>{
   if(["q","mode","cat","status","w"].includes(e.target.id))render();
 });
 render();
+fetch("daily.json",{cache:"no-store"}).then(r=>r.ok?r.json():Promise.reject()).then(d=>{
+  $("dupd").textContent="Updated "+d.updated;
+  $("dnote").textContent=d.note||"";
+  const mc={remote:"m5",hybrid:"m3",onsite:"m1"};
+  $("dbody").innerHTML=(d.items||[]).slice(0,20).map((x,i)=>`<tr>
+    <td class="n">${i+1}</td>
+    <td><b>${esc(x.company)}</b>${x.target?' <span class="chip m3">On your 30</span>':""}${x.travel_h>0&&x.travel_h<=1?' <span class="chip local">Near Stuttgart</span>':""}</td>
+    <td>${esc(x.role)}</td><td>${esc(x.location)}</td>
+    <td><span class="chip ${mc[x.mode]||""}">${esc(x.mode)}</span></td>
+    <td class="d">${esc(x.posted)}</td>
+    <td><a target="_blank" rel="noopener" href="${esc(x.url)}">View ↗</a></td></tr>`).join("")||'<tr><td colspan="7" class="note">No new openings found in the last run.</td></tr>';
+}).catch(()=>{$("dupd").textContent="No daily list yet"});
 </script>

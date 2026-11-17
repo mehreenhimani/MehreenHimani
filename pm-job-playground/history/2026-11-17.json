@@ -1,0 +1,19 @@
+{
+  "updated": "2026-11-17",
+  "note": "First run, done by hand. Most postings found are dated 3–9 Nov 2026; where a board showed no date it says 'n/a'. Starting tomorrow the daily run checks the 30 target companies' careers pages first and aims for 20 rows.",
+  "items": [
+    {"company":"TeamViewer","role":"Associate Product Manager, TeamViewer Remote & Tensor","location":"Göppingen (TeamViewer HQ)","mode":"hybrid","posted":"2026-11-05","travel_h":0.6,"target":false,"url":"https://startup.jobs/locations/germany/product-manager","source":"startup.jobs"},
+    {"company":"Grafana Labs","role":"Senior Product Manager, App o11y","location":"Remote, Germany","mode":"remote","posted":"2026-11-09","travel_h":0,"target":false,"url":"https://hiddenjobs.dev/company/grafanalabs/jobs/senior-product-manager-app-o11y-germany-remote-b3884d21/","source":"hiddenjobs.dev"},
+    {"company":"pixx.io","role":"Senior Product Manager B2B","location":"100% remote or Munich","mode":"remote","posted":"2026-11","travel_h":0,"target":false,"url":"https://zuhausejobs.com/remote-produktmanager-jobs","source":"zuhausejobs.com"},
+    {"company":"zollsoft","role":"Senior Produktmanager","location":"100% remote or Jena","mode":"remote","posted":"2026-11","travel_h":0,"target":false,"url":"https://zuhausejobs.com/remote-produktmanager-jobs","source":"zuhausejobs.com"},
+    {"company":"ElevenLabs","role":"Product Manager, ElevenCreative Self-Serve","location":"Remote","mode":"remote","posted":"2026-10 (late)","travel_h":0,"target":false,"url":"https://www.arbeitnow.com/jobs/product-manager?page=3","source":"arbeitnow.com"},
+    {"company":"Haut.AI","role":"Lead Product Manager, Go-to-Market","location":"Remote","mode":"remote","posted":"2026-10 (late)","travel_h":0,"target":false,"url":"https://www.arbeitnow.com/jobs/product-manager?page=3","source":"arbeitnow.com"},
+    {"company":"Peter Park","role":"Group Product Manager","location":"Munich","mode":"hybrid","posted":"2026-11-03","travel_h":2.2,"target":false,"url":"https://startup.jobs/locations/munich/product-manager","source":"startup.jobs"},
+    {"company":"IDnow","role":"Senior Product Manager, Trust Platform Core","location":"Munich or Berlin","mode":"hybrid","posted":"n/a","travel_h":2.2,"target":false,"url":"https://startup.jobs/locations/munich/product-manager","source":"startup.jobs"},
+    {"company":"Clera","role":"Senior Product Manager, Digital Therapeutics","location":"Munich or Berlin","mode":"hybrid","posted":"n/a","travel_h":2.2,"target":false,"url":"https://startup.jobs/locations/munich/product-manager","source":"startup.jobs"},
+    {"company":"Soley","role":"Senior Product Manager, Productization","location":"Munich","mode":"hybrid","posted":"2026-10-16","travel_h":2.2,"target":false,"url":"https://startup.jobs/locations/munich/product-manager","source":"startup.jobs"},
+    {"company":"bunch","role":"Senior Product Manager, Integrations & AI Foundations","location":"Berlin","mode":"hybrid","posted":"2026-11-04","travel_h":5.0,"target":false,"url":"https://startup.jobs/locations/germany/product-manager","source":"startup.jobs"},
+    {"company":"Affinidi","role":"Senior Product Manager, Technical","location":"Berlin","mode":"hybrid","posted":"2026-11-03","travel_h":5.0,"target":false,"url":"https://startup.jobs/locations/germany/product-manager","source":"startup.jobs"},
+    {"company":"Progyny","role":"(Senior) Product Manager","location":"Berlin (up to 2 home days)","mode":"hybrid","posted":"2026-09-25","travel_h":5.0,"target":false,"url":"https://join.com/companies/apryl/16854145-senior-product-manager-m-f-x","source":"join.com"}
+  ]
+}
