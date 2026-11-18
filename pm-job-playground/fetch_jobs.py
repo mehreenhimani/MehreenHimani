@@ -60,6 +60,40 @@ BOARDS = [
     ("PostHog", "ashby", "posthog", False, "remote"),
     ("ClickHouse", "ashby", "clickhouse", False, "remote"),
     ("JetBrains", "gh", "jetbrains", False, "hybrid"),
+    ("Canonical (Ubuntu)", "gh", "canonical", False, "remote"),
+    ("Wikimedia Foundation", "gh", "wikimedia", False, "remote"),
+    ("Twilio", "gh", "twilio", False, "remote"),
+    ("Okta", "gh", "okta", False, "hybrid"),
+    ("Figma", "gh", "figma", False, "hybrid"),
+    ("Airtable", "gh", "airtable", False, "hybrid"),
+    ("PagerDuty", "gh", "pagerduty", False, "hybrid"),
+    ("New Relic", "gh", "newrelic", False, "remote"),
+    ("Algolia", "gh", "algolia", False, "hybrid"),
+    ("Braze", "gh", "braze", False, "hybrid"),
+    ("Mixpanel", "gh", "mixpanel", False, "hybrid"),
+    ("LaunchDarkly", "gh", "launchdarkly", False, "remote"),
+    ("Trustpilot", "gh", "trustpilot", False, "hybrid"),
+    ("Typeform", "gh", "typeform", False, "hybrid"),
+    ("Storyblok", "gh", "storyblok", False, "remote"),
+    ("Neo4j", "gh", "neo4j", False, "remote"),
+    ("Cockroach Labs", "gh", "cockroachlabs", False, "remote"),
+    ("Sumo Logic", "gh", "sumologic", False, "remote"),
+    ("Intercom", "gh", "intercom", False, "hybrid"),
+    ("CircleCI", "gh", "circleci", False, "remote"),
+    ("Adyen", "gh", "adyen", False, "hybrid"),
+    ("Camunda", "ashby", "camunda", False, "hybrid"),
+    ("Redis", "ashby", "redis", False, "remote"),
+    ("Amplitude", "ashby", "amplitude", False, "hybrid"),
+    ("Snyk", "ashby", "snyk", False, "remote"),
+    ("Mollie", "ashby", "mollie", False, "hybrid"),
+    ("Sentry", "ashby", "sentry", False, "hybrid"),
+    ("Docker", "ashby", "docker", False, "remote"),
+    ("1Password", "ashby", "1password", False, "remote"),
+    ("Zapier", "ashby", "zapier", False, "remote"),
+    ("Notion", "ashby", "notion", False, "hybrid"),
+    ("Contentsquare", "lever", "contentsquare", False, "hybrid"),
+    ("SonarSource", "lever", "sonarsource", False, "hybrid"),
+    ("Toptal", "lever", "toptal", False, "remote"),
     ("Amazon", "amazon", "", True, "onsite"),
 ]
 
@@ -135,7 +169,7 @@ def fetch(board):
         text = f"{o['location']} {o['role']}"
         local = bool(STUTTGART.search(o["location"]))
         de = bool(GERMANY.search(o["location"]))
-        remote = o["wp"] == "remote" or bool(re.search(r"remote|anywhere|home office", text, re.I))
+        remote = o["wp"] == "remote" or bool(re.search(r"remote|anywhere|home[- ]?office|home[- ]?based|distributed|work from home|\bwfh\b", text, re.I))
         hybrid = o["wp"] == "hybrid" or bool(re.search(r"hybrid", text, re.I))
         if local:
             mode = "remote" if remote else ("hybrid" if hybrid else (o["wp"] or "check posting"))
@@ -175,8 +209,9 @@ def main():
     allrows, seen = [], set()
     for name, rows in results:
         for r in rows:
-            if r["url"] in seen: continue
-            seen.add(r["url"]); allrows.append(r)
+            key = (r["company"], re.sub(r"\W+", " ", r["role"].lower()).strip())
+            if r["url"] in seen or key in seen: continue
+            seen.add(r["url"]); seen.add(key); allrows.append(r)
     allrows.sort(key=rank_key)
     top, per = [], {}
     for r in allrows:
