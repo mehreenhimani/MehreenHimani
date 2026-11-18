@@ -1,7 +1,7 @@
 {
  "updated": "2026-11-18",
- "note": "Only posts from the last 14 days (32 older or undated posts left out). Pulled from 64 established companies' job boards; 6 PM roles qualified (Stuttgart area, or remote/hybrid in Germany). Every link opens the posting itself. 'hybrid (company policy)' means the ad does not say, so the company's usual office policy is assumed.",
- "total_qualified": 6,
+ "note": "Only posts from the last 14 days (36 older or undated posts left out). Pulled from 69 established companies' job boards; 14 PM roles qualified (Stuttgart area, or remote/hybrid in Germany). Every link opens the posting itself. 'hybrid (company policy)' means the ad does not say, so the company's usual office policy is assumed.",
+ "total_qualified": 14,
  "items": [
   {
    "company": "Bosch",
@@ -56,6 +56,97 @@
    "new": true
   },
   {
+   "company": "Sixt",
+   "role": "Product Owner Service Resolution & Automation – Customer Service Transformation (m/f/d)",
+   "location": "Munich, Germany",
+   "mode": "hybrid",
+   "posted": "2026-11-16",
+   "travel_h": 2.2,
+   "target": false,
+   "germany_explicit": true,
+   "url": "https://jobs.smartrecruiters.com/Sixt/744000161802034",
+   "source": "sr",
+   "new": true
+  },
+  {
+   "company": "Sixt",
+   "role": "Commercial Product Manager Vans & Trucks (m/f/d)",
+   "location": "Munich, Germany",
+   "mode": "hybrid",
+   "posted": "2026-11-06",
+   "travel_h": 2.2,
+   "target": false,
+   "germany_explicit": true,
+   "url": "https://jobs.smartrecruiters.com/Sixt/744000160210317",
+   "source": "sr",
+   "new": true
+  },
+  {
+   "company": "Sixt",
+   "role": "Product Owner Rent Booking (m/f/d)",
+   "location": "Munich, Germany",
+   "mode": "hybrid",
+   "posted": "2026-11-06",
+   "travel_h": 2.2,
+   "target": false,
+   "germany_explicit": true,
+   "url": "https://jobs.smartrecruiters.com/Sixt/744000160211139",
+   "source": "sr",
+   "new": true
+  },
+  {
+   "company": "Sixt",
+   "role": "Senior Technical Product Owner — Revenue Management (m/f/d)",
+   "location": "Munich, Germany",
+   "mode": "hybrid",
+   "posted": "2026-11-06",
+   "travel_h": 2.2,
+   "target": false,
+   "germany_explicit": true,
+   "url": "https://jobs.smartrecruiters.com/Sixt/744000160198029",
+   "source": "sr",
+   "new": true
+  },
+  {
+   "company": "Sixt",
+   "role": "Tech Lead & Product Owner - AI Platform (m/f/d)",
+   "location": "Munich, Germany",
+   "mode": "hybrid",
+   "posted": "2026-11-06",
+   "travel_h": 2.2,
+   "target": false,
+   "germany_explicit": true,
+   "url": "https://jobs.smartrecruiters.com/Sixt/744000160164939",
+   "source": "sr",
+   "new": true
+  },
+  {
+   "company": "Sixt",
+   "role": "Product Manager Personalization & Revenue Growth (m/f/d)",
+   "location": "Munich, Germany",
+   "mode": "hybrid",
+   "posted": "2026-11-06",
+   "travel_h": 2.2,
+   "target": false,
+   "germany_explicit": true,
+   "url": "https://jobs.smartrecruiters.com/Sixt/744000160151799",
+   "source": "sr",
+   "new": true
+  },
+  {
+   "company": "Sixt",
+   "role": "Product Manager (m/f/d) - Digital Rent",
+   "location": "Munich, Germany",
+   "mode": "hybrid",
+   "posted": "2026-11-05",
+   "travel_h": 2.2,
+   "target": false,
+   "germany_explicit": true,
+   "url": "https://jobs.smartrecruiters.com/Sixt/744000159981629",
+   "source": "sr",
+   "new": true
+  },
+  {
    "company": "Delivery Hero",
    "role": "Product Manager - (Logistics, Service Automations)",
    "location": "Berlin, Germany",
@@ -67,6 +158,19 @@
    "url": "https://jobs.smartrecruiters.com/DeliveryHero/744000160897530",
    "source": "sr",
    "new": false
+  },
+  {
+   "company": "Helsing",
+   "role": "Product Manager - Autonomy",
+   "location": "Berlin; Munich - Berlin - London",
+   "mode": "hybrid (company policy)",
+   "posted": "2026-11-11",
+   "travel_h": 2.2,
+   "target": false,
+   "germany_explicit": true,
+   "url": "https://helsing.ai/jobs/5034019101?gh_jid=5034019101",
+   "source": "gh",
+   "new": true
   },
   {
    "company": "Grafana Labs",

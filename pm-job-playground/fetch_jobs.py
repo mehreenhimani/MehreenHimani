@@ -94,6 +94,11 @@ BOARDS = [
     ("Contentsquare", "lever", "contentsquare", False, "hybrid"),
     ("SonarSource", "lever", "sonarsource", False, "hybrid"),
     ("Toptal", "lever", "toptal", False, "remote"),
+    ("Sixt", "sr", "Sixt", False, "hybrid"),
+    ("ServiceNow", "sr", "ServiceNow", False, "hybrid"),
+    ("Canva", "sr", "Canva", False, "hybrid"),
+    ("FlixBus", "gh", "flix", False, "hybrid"),
+    ("Helsing", "gh", "helsing", False, "hybrid"),
     ("Amazon", "amazon", "", True, "onsite"),
 ]
 
@@ -146,7 +151,7 @@ def fetch(board):
                                 url=j.get("hostedUrl"), posted=day(j.get("createdAt")), wp=(j.get("workplaceType") or "").lower()))
         elif ats == "sr":
             seen_sr = {}
-            for term in ("product", "produkt"):
+            for term in ("product", "produkt", "product manager", "product owner"):
                 q = urllib.parse.urlencode({"q": term, "country": "de", "limit": 100})
                 for j in get(f"https://api.smartrecruiters.com/v1/companies/{tok}/postings?{q}").get("content", []):
                     seen_sr[j["id"]] = j
