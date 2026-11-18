@@ -203,6 +203,7 @@ def main():
     ap.add_argument("--out", default="daily.json")
     ap.add_argument("--prev", default="")
     ap.add_argument("--top", type=int, default=20)
+    ap.add_argument("--max-age", type=int, default=14, help="drop posts older than this many days, or with no date")
     a = ap.parse_args()
     with ThreadPoolExecutor(8) as ex:
         results = list(ex.map(fetch, [b for b in BOARDS if b[0] not in STARTUPS]))
@@ -212,10 +213,16 @@ def main():
             key = (r["company"], re.sub(r"\W+", " ", r["role"].lower()).strip())
             if r["url"] in seen or key in seen: continue
             seen.add(r["url"]); seen.add(key); allrows.append(r)
+    def fresh(r):
+        try: return (dt.date.today() - dt.date.fromisoformat(r["posted"])).days <= a.max_age
+        except Exception: return False  # no posting date: cannot prove it is recent
+    dropped = len(allrows)
+    allrows = [r for r in allrows if fresh(r)]
+    dropped -= len(allrows)
     allrows.sort(key=rank_key)
     top, per = [], {}
     for r in allrows:
-        if per.get(r["company"], 0) >= 3: continue
+        if len(allrows) > a.top and per.get(r["company"], 0) >= 3: continue
         per[r["company"]] = per.get(r["company"], 0) + 1
         top.append(r)
         if len(top) == a.top: break
@@ -236,7 +243,7 @@ def main():
         r["new"] = bool(prev) and r["url"] not in prev_remote
     checked = len(results)
     data = {"updated": dt.date.today().isoformat(),
-            "note": f"Pulled from {checked} established companies' job boards; {len(allrows)} PM roles qualified (Stuttgart area, or remote/hybrid in Germany). Every link opens the posting itself. 'hybrid (company policy)' means the ad does not say, so the company's usual office policy is assumed.",
+            "note": f"Only posts from the last {a.max_age} days ({dropped} older or undated posts left out). Pulled from {checked} established companies' job boards; {len(allrows)} PM roles qualified (Stuttgart area, or remote/hybrid in Germany). Every link opens the posting itself. 'hybrid (company policy)' means the ad does not say, so the company's usual office policy is assumed.",
             "total_qualified": len(allrows), "items": top, "remote_all": remote_all}
     json.dump(data, open(a.out, "w"), ensure_ascii=False, indent=1)
     print(f"{len(allrows)} qualified, wrote top {len(top)} + {len(remote_all)} remote roles to {a.out}")
